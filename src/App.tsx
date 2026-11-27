@@ -12,9 +12,18 @@ import { CheckoutModal } from './components/CheckoutModal';
 import {
   LoginModal,
   OrdersView,
-  ResellView,
   WishlistView,
 } from './components/SecondaryViews';
+import { SupplierSignupPage } from './components/pages/SupplierSignupPage';
+import { AboutPage } from './components/pages/AboutPage';
+import { BlogPage } from './components/pages/BlogPage';
+import { AffiliatePage } from './components/pages/AffiliatePage';
+import {
+  DropshippingPortalPage,
+  ExportDataPage,
+  ResellerAppPage,
+  StoreIntegrationPage,
+} from './components/pages/ProductsPages';
 import { Footer } from './components/Footer';
 
 function loadStorage<T>(key: string, fallback: T): T {
@@ -318,10 +327,40 @@ export default function App() {
           <OrdersView orders={orders} onNavigate={navigateTo} />
         )}
 
-        {view.type === 'resell' && <ResellView onNavigate={navigateTo} />}
+        {view.type === 'resell' && (
+          <DropshippingPortalPage onNavigate={navigateTo} />
+        )}
+
+        {view.type === 'reseller-app' && (
+          <ResellerAppPage onNavigate={navigateTo} />
+        )}
+
+        {view.type === 'shopify' && (
+          <StoreIntegrationPage platform="shopify" onNavigate={navigateTo} />
+        )}
+
+        {view.type === 'woocommerce' && (
+          <StoreIntegrationPage platform="woocommerce" onNavigate={navigateTo} />
+        )}
+
+        {view.type === 'export-data' && (
+          <ExportDataPage onNavigate={navigateTo} />
+        )}
+
+        {view.type === 'about' && <AboutPage onNavigate={navigateTo} />}
+
+        {view.type === 'blog' && <BlogPage onNavigate={navigateTo} />}
+
+        {view.type === 'affiliate' && <AffiliatePage onNavigate={navigateTo} />}
+
+        {view.type === 'supplier' && (
+          <SupplierSignupPage onNavigate={navigateTo} />
+        )}
       </main>
 
-      <Footer onNavigate={navigateTo} onSearchSubmit={handleSearchSubmit} />
+      {view.type !== 'supplier' && (
+        <Footer onNavigate={navigateTo} onSearchSubmit={handleSearchSubmit} />
+      )}
 
       <CartDrawer
         isOpen={cartOpen}

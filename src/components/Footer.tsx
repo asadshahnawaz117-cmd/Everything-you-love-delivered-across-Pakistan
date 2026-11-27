@@ -123,7 +123,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onSearchSubmit }) =>
               <li>
                 <button
                   type="button"
-                  onClick={() => onNavigate({ type: 'resell' })}
+                  onClick={() => onNavigate({ type: 'reseller-app' })}
                   className="hover:text-[#0E9F6E]"
                 >
                   Reselling app
@@ -141,19 +141,28 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onSearchSubmit }) =>
               <li>
                 <button
                   type="button"
-                  onClick={() => onNavigate({ type: 'resell' })}
+                  onClick={() => onNavigate({ type: 'shopify' })}
                   className="hover:text-[#0E9F6E]"
                 >
-                  Dropshipping in Pakistan
+                  Export to Shopify
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  onClick={() => onNavigate({ type: 'resell' })}
+                  onClick={() => onNavigate({ type: 'woocommerce' })}
                   className="hover:text-[#0E9F6E]"
                 >
-                  Start with no investment
+                  Export to WooCommerce
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigate({ type: 'export-data' })}
+                  className="hover:text-[#0E9F6E]"
+                >
+                  Export product data
                 </button>
               </li>
             </ul>
@@ -168,10 +177,37 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onSearchSubmit }) =>
               <li>
                 <button
                   type="button"
-                  onClick={() => onNavigate({ type: 'home' })}
+                  onClick={() => onNavigate({ type: 'about' })}
                   className="hover:text-[#0E9F6E]"
                 >
                   About Markaz
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigate({ type: 'blog' })}
+                  className="hover:text-[#0E9F6E]"
+                >
+                  Blog
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigate({ type: 'affiliate' })}
+                  className="hover:text-[#0E9F6E]"
+                >
+                  Affiliate program
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigate({ type: 'supplier' })}
+                  className="hover:text-[#0E9F6E]"
+                >
+                  Become a supplier
                 </button>
               </li>
               <li>
@@ -190,15 +226,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onSearchSubmit }) =>
                   className="hover:text-[#0E9F6E]"
                 >
                   My favorites
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => onNavigate({ type: 'resell' })}
-                  className="hover:text-[#0E9F6E]"
-                >
-                  Become a supplier
                 </button>
               </li>
             </ul>

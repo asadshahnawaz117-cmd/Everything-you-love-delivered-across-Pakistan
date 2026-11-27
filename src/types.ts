@@ -138,4 +138,12 @@ export type AppView =
   | { type: 'product'; productId: string }
   | { type: 'wishlist' }
   | { type: 'orders' }
-  | { type: 'resell' };
+  | { type: 'resell' }
+  | { type: 'reseller-app' }
+  | { type: 'shopify' }
+  | { type: 'woocommerce' }
+  | { type: 'export-data' }
+  | { type: 'about' }
+  | { type: 'blog' }
+  | { type: 'supplier' }
+  | { type: 'affiliate' };

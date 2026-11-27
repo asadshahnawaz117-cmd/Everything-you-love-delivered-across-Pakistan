@@ -61,12 +61,33 @@ export const Header: React.FC<HeaderProps> = ({
     setMobileMenuOpen(false);
   };
 
-  const isLandingHome = currentView.type === 'home';
+  if (currentView.type === 'supplier') {
+    return null;
+  }
+
+  const isMarketingHeader =
+    currentView.type === 'home' ||
+    currentView.type === 'resell' ||
+    currentView.type === 'reseller-app' ||
+    currentView.type === 'shopify' ||
+    currentView.type === 'woocommerce' ||
+    currentView.type === 'export-data' ||
+    currentView.type === 'about' ||
+    currentView.type === 'blog' ||
+    currentView.type === 'affiliate';
+
+  const isProductsActive =
+    currentView.type === 'resell' ||
+    currentView.type === 'reseller-app' ||
+    currentView.type === 'shopify' ||
+    currentView.type === 'woocommerce' ||
+    currentView.type === 'export-data';
+
   const isChinaActive =
     currentView.type === 'shop' && currentView.origin === 'china';
 
-  /* ================= 1. LANDING HEADER (Exact match to markaz.app screenshot) ================= */
-  if (isLandingHome) {
+  /* ================= 1. LANDING / MARKETING HEADER ================= */
+  if (isMarketingHeader) {
     return (
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white">
         <div className="mx-auto flex max-w-[1280px] items-center justify-between gap-4 px-4 py-3 lg:px-6">
@@ -80,112 +101,140 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <nav className="hidden items-center gap-6 text-[13.5px] font-medium text-[#334155] lg:flex">
-              <div className="relative">
+              <div
+                className="relative"
+                onMouseLeave={() => setProductsDropdownOpen(false)}
+              >
                 <button
                   type="button"
                   onClick={() => setProductsDropdownOpen(!productsDropdownOpen)}
-                  className="inline-flex items-center gap-1 whitespace-nowrap shrink-0 hover:text-[#16A34A]"
+                  className={`inline-flex items-center gap-1 whitespace-nowrap shrink-0 transition-colors hover:text-[#16A34A] ${
+                    isProductsActive ? 'font-semibold text-[#16A34A]' : ''
+                  }`}
                 >
                   <span>Products</span>
-                  <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 text-slate-400 transition-transform ${
+                      productsDropdownOpen ? 'rotate-180' : ''
+                    }`}
+                  />
                 </button>
                 {productsDropdownOpen && (
-                  <div
-                    onMouseLeave={() => setProductsDropdownOpen(false)}
-                    className="absolute top-full left-0 mt-2 w-60 rounded-xl border border-slate-200 bg-white p-2 shadow-xl"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProductsDropdownOpen(false);
-                        onNavigate({ type: 'shop', origin: 'pakistan' });
-                      }}
-                      className="block w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-800 hover:bg-emerald-50 hover:text-emerald-800"
-                    >
-                      Shop from Pakistan
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProductsDropdownOpen(false);
-                        onNavigate({ type: 'shop', origin: 'china' });
-                      }}
-                      className="block w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-800 hover:bg-emerald-50 hover:text-emerald-800"
-                    >
-                      Shop from China
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProductsDropdownOpen(false);
-                        onNavigate({ type: 'category', slug: 'womens-stitched' });
-                      }}
-                      className="block w-full rounded-lg px-3 py-2 text-left text-xs font-medium text-slate-600 hover:bg-slate-50"
-                    >
-                      Women&apos;s Stitched
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProductsDropdownOpen(false);
-                        onNavigate({ type: 'category', slug: 'cosmetics' });
-                      }}
-                      className="block w-full rounded-lg px-3 py-2 text-left text-xs font-medium text-slate-600 hover:bg-slate-50"
-                    >
-                      Cosmetics &amp; Perfumes
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProductsDropdownOpen(false);
-                        onNavigate({ type: 'category', slug: 'kitchenware' });
-                      }}
-                      className="block w-full rounded-lg px-3 py-2 text-left text-xs font-medium text-slate-600 hover:bg-slate-50"
-                    >
-                      Kitchenware
-                    </button>
+                  <div className="absolute top-full left-0 z-50 w-56 pt-2">
+                    <div className="rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductsDropdownOpen(false);
+                          onNavigate({ type: 'resell' });
+                        }}
+                        className={`block w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-colors hover:bg-emerald-50 hover:text-[#16A34A] ${
+                          currentView.type === 'resell'
+                            ? 'bg-emerald-50 font-semibold text-[#16A34A]'
+                            : 'text-slate-700'
+                        }`}
+                      >
+                        Dropshipping Portal
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductsDropdownOpen(false);
+                          onNavigate({ type: 'reseller-app' });
+                        }}
+                        className={`block w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-colors hover:bg-emerald-50 hover:text-[#16A34A] ${
+                          currentView.type === 'reseller-app'
+                            ? 'bg-emerald-50 font-semibold text-[#16A34A]'
+                            : 'text-slate-700'
+                        }`}
+                      >
+                        Reseller App
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductsDropdownOpen(false);
+                          onNavigate({ type: 'shopify' });
+                        }}
+                        className={`block w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-colors hover:bg-emerald-50 hover:text-[#16A34A] ${
+                          currentView.type === 'shopify'
+                            ? 'bg-emerald-50 font-semibold text-[#16A34A]'
+                            : 'text-slate-700'
+                        }`}
+                      >
+                        Sell on Shopify
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductsDropdownOpen(false);
+                          onNavigate({ type: 'woocommerce' });
+                        }}
+                        className={`block w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-colors hover:bg-emerald-50 hover:text-[#16A34A] ${
+                          currentView.type === 'woocommerce'
+                            ? 'bg-emerald-50 font-semibold text-[#16A34A]'
+                            : 'text-slate-700'
+                        }`}
+                      >
+                        Sell on WooCommerce
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductsDropdownOpen(false);
+                          onNavigate({ type: 'export-data' });
+                        }}
+                        className={`block w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-colors hover:bg-emerald-50 hover:text-[#16A34A] ${
+                          currentView.type === 'export-data'
+                            ? 'bg-emerald-50 font-semibold text-[#16A34A]'
+                            : 'text-slate-700'
+                        }`}
+                      >
+                        Export product data
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
 
               <button
                 type="button"
-                onClick={() => {
-                  const el = document.getElementById('markaz-about-section');
-                  el?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="whitespace-nowrap shrink-0 hover:text-[#16A34A]"
+                onClick={() => onNavigate({ type: 'about' })}
+                className={`whitespace-nowrap shrink-0 transition-colors hover:text-[#16A34A] ${
+                  currentView.type === 'about' ? 'font-semibold text-[#16A34A]' : ''
+                }`}
               >
                 About Us
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  const el = document.getElementById('markaz-faq-section');
-                  el?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="whitespace-nowrap shrink-0 hover:text-[#16A34A]"
+                onClick={() => onNavigate({ type: 'blog' })}
+                className={`whitespace-nowrap shrink-0 transition-colors hover:text-[#16A34A] ${
+                  currentView.type === 'blog' ? 'font-semibold text-[#16A34A]' : ''
+                }`}
               >
                 Blog
               </button>
               <button
                 type="button"
-                onClick={() => onNavigate({ type: 'resell' })}
-                className="whitespace-nowrap shrink-0 hover:text-[#16A34A]"
+                onClick={() => onNavigate({ type: 'supplier' })}
+                className="whitespace-nowrap shrink-0 transition-colors hover:text-[#16A34A]"
               >
                 Become a Supplier
               </button>
               <button
                 type="button"
-                onClick={() => onNavigate({ type: 'resell' })}
-                className="whitespace-nowrap shrink-0 hover:text-[#16A34A]"
+                onClick={() => onNavigate({ type: 'affiliate' })}
+                className={`whitespace-nowrap shrink-0 transition-colors hover:text-[#16A34A] ${
+                  currentView.type === 'affiliate' ? 'font-semibold text-[#16A34A]' : ''
+                }`}
               >
                 Affiliate
               </button>
               <button
                 type="button"
                 onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
-                className="whitespace-nowrap shrink-0 hover:text-[#16A34A]"
+                className="whitespace-nowrap shrink-0 transition-colors hover:text-[#16A34A]"
               >
                 Shop Now
               </button>
@@ -222,7 +271,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Lime/Chartreuse Rounded-Full Download the App Button */}
             <button
               type="button"
-              onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
+              onClick={() => onNavigate({ type: 'reseller-app' })}
               className="hidden sm:inline-flex h-9 items-center gap-2 rounded-full border border-[#6CC320] bg-[#8FE041] px-5 text-[13px] font-semibold text-[#112A12] shadow-2xs transition-colors hover:bg-[#7ED42E] whitespace-nowrap shrink-0"
             >
               Download the App
@@ -241,26 +290,16 @@ export const Header: React.FC<HeaderProps> = ({
 
         {mobileMenuOpen && (
           <div className="border-t border-slate-200 bg-white px-4 py-3 lg:hidden">
-            <div className="grid grid-cols-2 gap-2 text-sm font-medium">
+            <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => {
                   onNavigate({ type: 'shop', origin: 'pakistan' });
                   setMobileMenuOpen(false);
                 }}
-                className="rounded-full bg-[#8FE041] border border-[#6CC320] px-3 py-2 text-center font-semibold text-[#112A12]"
+                className="rounded-full bg-[#8FE041] border border-[#6CC320] px-3 py-2 text-center text-[#112A12]"
               >
-                Shop Pakistan
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  onNavigate({ type: 'shop', origin: 'china' });
-                  setMobileMenuOpen(false);
-                }}
-                className="rounded-full border border-slate-200 px-3 py-2 text-center text-slate-800"
-              >
-                Shop from China
+                Shop Now
               </button>
               <button
                 type="button"
@@ -268,9 +307,89 @@ export const Header: React.FC<HeaderProps> = ({
                   onNavigate({ type: 'resell' });
                   setMobileMenuOpen(false);
                 }}
+                className="rounded-full border border-slate-200 px-3 py-2 text-center text-slate-800"
+              >
+                Dropshipping Portal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigate({ type: 'reseller-app' });
+                  setMobileMenuOpen(false);
+                }}
                 className="rounded-full border border-slate-200 px-3 py-2 text-slate-700"
               >
-                Resell &amp; Earn
+                Reseller App
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigate({ type: 'shopify' });
+                  setMobileMenuOpen(false);
+                }}
+                className="rounded-full border border-slate-200 px-3 py-2 text-slate-700"
+              >
+                Sell on Shopify
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigate({ type: 'woocommerce' });
+                  setMobileMenuOpen(false);
+                }}
+                className="rounded-full border border-slate-200 px-3 py-2 text-slate-700"
+              >
+                Sell on WooCommerce
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigate({ type: 'export-data' });
+                  setMobileMenuOpen(false);
+                }}
+                className="rounded-full border border-slate-200 px-3 py-2 text-slate-700"
+              >
+                Export Product Data
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigate({ type: 'about' });
+                  setMobileMenuOpen(false);
+                }}
+                className="rounded-full border border-slate-200 px-3 py-2 text-slate-700"
+              >
+                About Us
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigate({ type: 'blog' });
+                  setMobileMenuOpen(false);
+                }}
+                className="rounded-full border border-slate-200 px-3 py-2 text-slate-700"
+              >
+                Blog
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigate({ type: 'supplier' });
+                  setMobileMenuOpen(false);
+                }}
+                className="rounded-full border border-slate-200 px-3 py-2 text-slate-700"
+              >
+                Become a Supplier
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigate({ type: 'affiliate' });
+                  setMobileMenuOpen(false);
+                }}
+                className="rounded-full border border-slate-200 px-3 py-2 text-slate-700"
+              >
+                Affiliate
               </button>
               <button
                 type="button"
@@ -278,7 +397,7 @@ export const Header: React.FC<HeaderProps> = ({
                   onNavigate({ type: 'orders' });
                   setMobileMenuOpen(false);
                 }}
-                className="rounded-full border border-slate-200 px-3 py-2 text-slate-700"
+                className="col-span-2 rounded-full border border-slate-200 px-3 py-2 text-slate-700"
               >
                 My Orders ({ordersCount})
               </button>
