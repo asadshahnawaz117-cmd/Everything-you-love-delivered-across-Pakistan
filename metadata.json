@@ -1,0 +1,8 @@
+{
+  "name": "Markaz — Pakistan Online Marketplace",
+  "description": "Shop millions of products across Pakistan and direct from China with Cash on Delivery, 7-day returns, and zero-investment reselling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
