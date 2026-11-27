@@ -213,6 +213,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onSearchSubmit }) =>
               <li>
                 <button
                   type="button"
+                  onClick={() => onNavigate({ type: 'contact' })}
+                  className="hover:text-[#0E9F6E]"
+                >
+                  Contact &amp; Content Hub
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
                   onClick={() => onNavigate({ type: 'orders' })}
                   className="hover:text-[#0E9F6E]"
                 >

@@ -74,7 +74,8 @@ export const Header: React.FC<HeaderProps> = ({
     currentView.type === 'export-data' ||
     currentView.type === 'about' ||
     currentView.type === 'blog' ||
-    currentView.type === 'affiliate';
+    currentView.type === 'affiliate' ||
+    currentView.type === 'contact';
 
   const isProductsActive =
     currentView.type === 'resell' ||
@@ -230,6 +231,15 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 Affiliate
+              </button>
+              <button
+                type="button"
+                onClick={() => onNavigate({ type: 'contact' })}
+                className={`whitespace-nowrap shrink-0 transition-colors hover:text-[#16A34A] ${
+                  currentView.type === 'contact' ? 'font-semibold text-[#16A34A]' : ''
+                }`}
+              >
+                Contact
               </button>
               <button
                 type="button"
@@ -390,6 +400,16 @@ export const Header: React.FC<HeaderProps> = ({
                 className="rounded-full border border-slate-200 px-3 py-2 text-slate-700"
               >
                 Affiliate
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigate({ type: 'contact' });
+                  setMobileMenuOpen(false);
+                }}
+                className="rounded-full border border-slate-200 px-3 py-2 text-slate-700"
+              >
+                Contact &amp; Content
               </button>
               <button
                 type="button"

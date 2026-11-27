@@ -147,4 +147,5 @@ export type AppView =
   | { type: 'about' }
   | { type: 'blog' }
   | { type: 'supplier' }
-  | { type: 'affiliate' };
+  | { type: 'affiliate' }
+  | { type: 'contact' };

@@ -25,3 +25,21 @@ create policy "Allow public insert for guest COD checkout"
   for insert
   to anon, authenticated
   with check (true);
+
+-- Contact form messages table (Email + Message only, no passwords stored)
+create table if not exists public.markaz_messages (
+  id uuid primary key default gen_random_uuid(),
+  email text not null,
+  message text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.markaz_messages enable row level security;
+
+drop policy if exists "Allow public insert for contact messages" on public.markaz_messages;
+
+create policy "Allow public insert for contact messages"
+  on public.markaz_messages
+  for insert
+  to anon, authenticated
+  with check (true);

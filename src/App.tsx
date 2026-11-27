@@ -18,6 +18,7 @@ import { SupplierSignupPage } from './components/pages/SupplierSignupPage';
 import { AboutPage } from './components/pages/AboutPage';
 import { BlogPage } from './components/pages/BlogPage';
 import { AffiliatePage } from './components/pages/AffiliatePage';
+import { ContactPage } from './components/pages/ContactPage';
 import {
   DropshippingPortalPage,
   ExportDataPage,
@@ -418,6 +419,15 @@ export default function App() {
         {view.type === 'affiliate' && (
           <AffiliatePage
             onNavigate={navigateTo}
+            onQuickAdd={handleQuickAdd}
+          />
+        )}
+
+        {view.type === 'contact' && (
+          <ContactPage
+            onNavigate={navigateTo}
+            wishlistIds={wishlistIds}
+            onToggleWishlist={handleToggleWishlist}
             onQuickAdd={handleQuickAdd}
           />
         )}
