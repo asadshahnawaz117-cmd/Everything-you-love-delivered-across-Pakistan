@@ -19,16 +19,23 @@ import {
   Truck,
   Wallet,
 } from 'lucide-react';
-import { CATEGORIES, PRODUCTS } from '../../data/catalog';
-import { AppView } from '../../types';
-import { ProductImage } from '../ProductCard';
+import { CATEGORIES, PRODUCTS, SHOP_CATEGORY_TILES } from '../../data/catalog';
+import { AppView, Product, ProductColorVariant } from '../../types';
+import { ProductCard, ProductImage } from '../ProductCard';
 
 interface PageNavProps {
   onNavigate: (view: AppView) => void;
+  wishlistIds?: string[];
+  onToggleWishlist?: (id: string) => void;
+  onQuickAdd?: (product: Product, color?: ProductColorVariant) => void;
 }
 
 /* Helper to actually download a real CSV from Markaz catalog */
-function downloadCatalogCsv(format: 'shopify' | 'woocommerce' | 'excel', marginPkr: number) {
+function downloadCatalogCsv(
+  format: 'shopify' | 'woocommerce' | 'excel',
+  marginPkr: number,
+  sourceProducts: Product[] = PRODUCTS.slice(0, 25)
+) {
   const headers =
     format === 'shopify'
       ? ['Handle', 'Title', 'Vendor', 'Product Category', 'Type', 'Tags', 'Published', 'Variant SKU', 'Variant Price', 'Image Src', 'Status']
@@ -36,7 +43,7 @@ function downloadCatalogCsv(format: 'shopify' | 'woocommerce' | 'excel', marginP
       ? ['SKU', 'Name', 'Published', 'Short description', 'Categories', 'Regular price', 'Images', 'In stock?']
       : ['SKU', 'Title', 'Category', 'Origin', 'Wholesale_PKR', 'Resell_Margin_PKR', 'Retail_Price_PKR', 'Stock', 'Image'];
 
-  const rows = PRODUCTS.slice(0, 25).map((p) => {
+  const rows = sourceProducts.map((p) => {
     const retail = p.price + marginPkr;
     const imgUrl = p.images[0] || '';
     if (format === 'shopify') {
@@ -92,10 +99,20 @@ function downloadCatalogCsv(format: 'shopify' | 'woocommerce' | 'excel', marginP
 }
 
 /* ================= 1. DROPSHIPPING PORTAL (Video 00:04 & 00:59–01:17) ================= */
-export const DropshippingPortalPage: React.FC<PageNavProps> = ({ onNavigate }) => {
+export const DropshippingPortalPage: React.FC<PageNavProps> = ({
+  onNavigate,
+  wishlistIds = [],
+  onToggleWishlist = () => {},
+  onQuickAdd = () => {},
+}) => {
   const [monthlyOrders, setMonthlyOrders] = useState(40);
   const [avgMargin, setAvgMargin] = useState(500);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [portalOrigin, setPortalOrigin] = useState<'all' | 'pakistan' | 'china'>('all');
+
+  const portalProducts = PRODUCTS.filter((p) =>
+    portalOrigin === 'all' ? true : p.origin === portalOrigin
+  ).slice(0, 24);
 
   const faqs = [
     {
@@ -163,8 +180,8 @@ export const DropshippingPortalPage: React.FC<PageNavProps> = ({ onNavigate }) =
                 </span>
               </div>
 
-              <div className="mt-3 grid grid-cols-3 gap-2.5">
-                {PRODUCTS.slice(0, 6).map((p) => (
+              <div className="mt-3 grid grid-cols-3 gap-2.5 sm:grid-cols-4">
+                {PRODUCTS.slice(0, 12).map((p) => (
                   <button
                     key={p.id}
                     type="button"
@@ -350,6 +367,75 @@ export const DropshippingPortalPage: React.FC<PageNavProps> = ({ onNavigate }) =
           </div>
         </div>
 
+        {/* Live Winning Dropship Products Selector (24 items + 18 Categories) */}
+        <div className="mt-12">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="font-display text-2xl font-bold text-slate-900">
+                Winning Dropship Catalog
+              </h2>
+              <p className="text-xs text-slate-500">
+                Pick items from Pakistan or China, inspect variants, or export CSV directly to your store.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {(['all', 'pakistan', 'china'] as const).map((orig) => (
+                <button
+                  key={orig}
+                  type="button"
+                  onClick={() => setPortalOrigin(orig)}
+                  className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold capitalize transition-colors ${
+                    portalOrigin === orig
+                      ? 'border-[#0E9F6E] bg-[#0E9F6E] text-white'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-[#0E9F6E]'
+                  }`}
+                >
+                  {orig === 'all' ? 'All Sources' : orig}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+            {portalProducts.map((p, idx) => (
+              <ProductCard
+                key={`drop-${p.id}`}
+                product={p}
+                staggerIndex={idx}
+                isWishlisted={wishlistIds.includes(p.id)}
+                onToggleWishlist={onToggleWishlist}
+                onQuickAdd={onQuickAdd}
+                onSelect={(prod) => onNavigate({ type: 'product', productId: prod.id })}
+              />
+            ))}
+          </div>
+
+          <h3 className="mt-10 mb-4 font-display text-lg font-bold text-slate-900">
+            Browse all 18 Dropshipping Categories
+          </h3>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 lg:grid-cols-9">
+            {SHOP_CATEGORY_TILES.map((tile) => (
+              <button
+                key={`drop-cat-${tile.label}`}
+                type="button"
+                onClick={() => onNavigate({ type: 'category', slug: tile.slug })}
+                className="group flex flex-col items-center text-center"
+              >
+                <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-[#F4F5F7] p-1 transition-all group-hover:-translate-y-1 group-hover:border-[#0E9F6E]">
+                  <ProductImage
+                    src={tile.image}
+                    alt={tile.label}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                </div>
+                <span className="mt-1 text-[11px] font-semibold text-slate-700 line-clamp-1 group-hover:text-[#0E9F6E]">
+                  {tile.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* FAQ */}
         <div className="mt-12 grid grid-cols-1 gap-3 md:grid-cols-2">
           {faqs.map((faq, idx) => (
@@ -381,7 +467,12 @@ export const DropshippingPortalPage: React.FC<PageNavProps> = ({ onNavigate }) =
 };
 
 /* ================= 2. RESELLER APP PAGE (Video 00:10–00:28) ================= */
-export const ResellerAppPage: React.FC<PageNavProps> = ({ onNavigate }) => {
+export const ResellerAppPage: React.FC<PageNavProps> = ({
+  onNavigate,
+  wishlistIds = [],
+  onToggleWishlist = () => {},
+  onQuickAdd = () => {},
+}) => {
   return (
     <div className="bg-white pb-12">
       <section className="mx-auto max-w-[1280px] px-4 pt-12 pb-10 lg:px-6">
@@ -425,7 +516,7 @@ export const ResellerAppPage: React.FC<PageNavProps> = ({ onNavigate }) => {
                 Top Categories
               </p>
               <div className="mt-2 grid grid-cols-3 gap-2">
-                {CATEGORIES.slice(0, 6).map((c) => (
+                {CATEGORIES.slice(0, 9).map((c) => (
                   <button
                     key={c.slug}
                     type="button"
@@ -527,6 +618,65 @@ export const ResellerAppPage: React.FC<PageNavProps> = ({ onNavigate }) => {
             </div>
           ))}
         </div>
+
+        {/* High-Margin Products to Resell Today (24 items + 18 Categories) */}
+        <div className="mt-12">
+          <div className="mb-4 flex items-end justify-between">
+            <div>
+              <h2 className="font-display text-2xl font-bold text-slate-900">
+                High-Margin Products to Resell Today
+              </h2>
+              <p className="text-xs text-slate-500">
+                Tap any item to set your PKR resell margin or add straight to your WhatsApp catalog.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
+              className="text-xs font-semibold text-[#0E9F6E] hover:underline"
+            >
+              Browse 260+ items →
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+            {PRODUCTS.slice(12, 36).map((p, idx) => (
+              <ProductCard
+                key={`app-prod-${p.id}`}
+                product={p}
+                staggerIndex={idx}
+                isWishlisted={wishlistIds.includes(p.id)}
+                onToggleWishlist={onToggleWishlist}
+                onQuickAdd={onQuickAdd}
+                onSelect={(prod) => onNavigate({ type: 'product', productId: prod.id })}
+              />
+            ))}
+          </div>
+
+          <h3 className="mt-10 mb-4 font-display text-lg font-bold text-slate-900">
+            All 18 Reselling Categories
+          </h3>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 lg:grid-cols-9">
+            {SHOP_CATEGORY_TILES.map((tile) => (
+              <button
+                key={`app-cat-${tile.label}`}
+                type="button"
+                onClick={() => onNavigate({ type: 'category', slug: tile.slug })}
+                className="group flex flex-col items-center text-center"
+              >
+                <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-[#F4F5F7] p-1 transition-all group-hover:-translate-y-1 group-hover:border-[#0E9F6E]">
+                  <ProductImage
+                    src={tile.image}
+                    alt={tile.label}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                </div>
+                <span className="mt-1 text-[11px] font-semibold text-slate-700 line-clamp-1 group-hover:text-[#0E9F6E]">
+                  {tile.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
       </section>
     </div>
   );
@@ -536,60 +686,99 @@ export const ResellerAppPage: React.FC<PageNavProps> = ({ onNavigate }) => {
 export const StoreIntegrationPage: React.FC<{
   platform: 'shopify' | 'woocommerce';
   onNavigate: (view: AppView) => void;
-}> = ({ platform, onNavigate }) => {
+  wishlistIds?: string[];
+  onToggleWishlist?: (id: string) => void;
+  onQuickAdd?: (product: Product, color?: ProductColorVariant) => void;
+}> = ({
+  platform,
+  onNavigate,
+  wishlistIds = [],
+  onToggleWishlist = () => {},
+  onQuickAdd = () => {},
+}) => {
   const isShopify = platform === 'shopify';
   const name = isShopify ? 'Shopify' : 'WooCommerce';
 
   return (
     <div className="bg-white pb-12">
-      {/* Dark Emerald-Indigo Hero matching video 00:30 & 00:41 */}
+      {/* Dark Emerald-Indigo Hero with Live Store Importer Preview */}
       <section className="mx-auto max-w-[1280px] px-4 pt-8 lg:px-6">
-        <div className="rounded-3xl bg-[radial-gradient(ellipse_at_bottom_right,_#13795B_0%,_#0F4C5C_45%,_#181A63_85%,_#1B1352_100%)] p-7 text-white sm:p-10">
-          <span className="inline-block rounded-full border border-[#8FE041]/40 bg-[#0A2E2E]/70 px-3 py-1 text-[11px] font-bold text-[#8FE041]">
-            Free for every Markaz reseller
-          </span>
-          <h1 className="mt-4 max-w-2xl font-display text-3xl font-extrabold leading-tight sm:text-4xl">
-            Sell Markaz products on your {name} store
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-200">
-            Download a {name}-ready CSV of the products you choose, at the prices you set, and load it with the importer already built into {name}. Images, variants and descriptions arrive with it. No plugin, no subscription.
-          </p>
+        <div className="grid grid-cols-1 items-center gap-8 rounded-3xl bg-[radial-gradient(ellipse_at_bottom_right,_#13795B_0%,_#0F4C5C_45%,_#181A63_85%,_#1B1352_100%)] p-7 text-white sm:p-10 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            <span className="inline-block rounded-full border border-[#8FE041]/40 bg-[#0A2E2E]/70 px-3 py-1 text-[11px] font-bold text-[#8FE041]">
+              Free for every Markaz reseller
+            </span>
+            <h1 className="mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl">
+              Sell Markaz products on your {name} store
+            </h1>
+            <p className="mt-3 text-sm leading-relaxed text-slate-200">
+              Download a {name}-ready CSV of the products you choose, at the prices you set, and load it with the importer already built into {name}. Images, variants and descriptions arrive with it. No plugin, no subscription.
+            </p>
 
-          <div className="mt-6 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => onNavigate({ type: 'export-data' })}
-              className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs font-bold text-slate-900 hover:bg-emerald-50"
-            >
-              <span>Open the export tool</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
-              className="rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-xs font-semibold text-white hover:bg-white/20"
-            >
-              Browse products first
-            </button>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => onNavigate({ type: 'export-data' })}
+                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs font-bold text-slate-900 hover:bg-emerald-50"
+              >
+                <span>Open the export tool</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
+                className="rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-xs font-semibold text-white hover:bg-white/20"
+              >
+                Browse products first
+              </button>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-2.5 border-t border-white/15 pt-5 text-xs text-emerald-100 sm:grid-cols-2">
+              <span className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-[#8FE041]" />
+                Real {name} CSV — Products → Import and you&apos;re done
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-[#8FE041]" />
+                Products arrive as drafts so nothing goes live unreviewed
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-[#8FE041]" />
+                Your prices, and your own brand in the Vendor field
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-[#8FE041]" />
+                Markaz delivers across Pakistan, prepaid or Cash on Delivery
+              </span>
+            </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-2.5 border-t border-white/15 pt-5 text-xs text-emerald-100 sm:grid-cols-2">
-            <span className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-[#8FE041]" />
-              Real {name} CSV — Products → Import and you&apos;re done
-            </span>
-            <span className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-[#8FE041]" />
-              Products arrive as drafts so nothing goes live unreviewed
-            </span>
-            <span className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-[#8FE041]" />
-              Your prices, and your own brand in the Vendor field
-            </span>
-            <span className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-[#8FE041]" />
-              Markaz delivers across Pakistan, prepaid or Cash on Delivery
-            </span>
+          {/* Right Live Importer Preview (6 studio product cards) */}
+          <div className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md lg:col-span-5">
+            <div className="mb-3 flex items-center justify-between text-[11px]">
+              <span className="font-bold text-white">{name} Draft Queue</span>
+              <span className="rounded-full bg-[#8FE041] px-2 py-0.5 font-extrabold text-[#112A12]">
+                CSV Ready
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {PRODUCTS.slice(0, 6).map((p) => (
+                <button
+                  key={`store-prev-${p.id}`}
+                  type="button"
+                  onClick={() => onNavigate({ type: 'product', productId: p.id })}
+                  className="overflow-hidden rounded-xl bg-white p-1.5 text-left text-slate-900 shadow-sm hover:ring-2 hover:ring-[#8FE041]"
+                >
+                  <div className="aspect-square overflow-hidden rounded-lg bg-slate-100">
+                    <ProductImage src={p.images[0]} alt={p.title} className="h-full w-full" />
+                  </div>
+                  <p className="mt-1 truncate text-[10px] font-bold">{p.title}</p>
+                  <p className="font-mono-num text-[10px] font-bold text-[#0E9F6E]">
+                    PKR {(p.price + 400).toLocaleString()}
+                  </p>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -637,6 +826,66 @@ export const StoreIntegrationPage: React.FC<{
           ))}
         </div>
 
+        {/* Pre-Mapped Store Products Ready to Import (24 ProductCards + 18 Categories) */}
+        <div className="mt-12">
+          <div className="mb-4 flex items-end justify-between">
+            <div>
+              <h2 className="font-display text-xl font-bold text-slate-900">
+                Pre-Mapped Products Ready for {name}
+              </h2>
+              <p className="text-xs text-slate-500">
+                Heart items you want to export, or download the entire pack directly inside the Export Tool.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => downloadCatalogCsv(isShopify ? 'shopify' : 'woocommerce', 400)}
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#0E9F6E] px-4 py-2 text-xs font-bold text-white hover:bg-[#057A55]"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Download {name} Sample CSV
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+            {PRODUCTS.slice(0, 24).map((p, idx) => (
+              <ProductCard
+                key={`int-${p.id}`}
+                product={p}
+                staggerIndex={idx}
+                isWishlisted={wishlistIds.includes(p.id)}
+                onToggleWishlist={onToggleWishlist}
+                onQuickAdd={onQuickAdd}
+                onSelect={(prod) => onNavigate({ type: 'product', productId: prod.id })}
+              />
+            ))}
+          </div>
+
+          <h3 className="mt-10 mb-4 font-display text-lg font-bold text-slate-900">
+            Supported {name} Collections (18 Categories)
+          </h3>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 lg:grid-cols-9">
+            {SHOP_CATEGORY_TILES.map((tile) => (
+              <button
+                key={`int-cat-${tile.label}`}
+                type="button"
+                onClick={() => onNavigate({ type: 'category', slug: tile.slug })}
+                className="group flex flex-col items-center text-center"
+              >
+                <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-[#F4F5F7] p-1 transition-all group-hover:-translate-y-1 group-hover:border-[#0E9F6E]">
+                  <ProductImage
+                    src={tile.image}
+                    alt={tile.label}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                </div>
+                <span className="mt-1 text-[11px] font-semibold text-slate-700 line-clamp-1 group-hover:text-[#0E9F6E]">
+                  {tile.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Bottom CTA */}
         <div className="mt-10 rounded-2xl bg-[radial-gradient(ellipse_at_bottom_right,_#13795B_0%,_#0F4C5C_50%,_#181A63_100%)] p-8 text-center text-white">
           <h2 className="font-display text-2xl font-bold">
@@ -670,13 +919,23 @@ export const StoreIntegrationPage: React.FC<{
 };
 
 /* ================= 4. EXPORT PRODUCT DATA PAGE (Video 00:50–00:57 + Live CSV Export) ================= */
-export const ExportDataPage: React.FC<PageNavProps> = ({ onNavigate }) => {
+export const ExportDataPage: React.FC<PageNavProps> = ({
+  onNavigate,
+  wishlistIds = [],
+  onToggleWishlist = () => {},
+  onQuickAdd = () => {},
+}) => {
   const [format, setFormat] = useState<'shopify' | 'woocommerce' | 'excel'>('shopify');
   const [margin, setMargin] = useState(400);
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [exported, setExported] = useState(false);
 
+  const exportCandidates = PRODUCTS.filter((p) =>
+    categoryFilter === 'all' ? true : p.category === categoryFilter
+  ).slice(0, 24);
+
   const handleDownload = () => {
-    downloadCatalogCsv(format, margin);
+    downloadCatalogCsv(format, margin, exportCandidates);
     setExported(true);
     setTimeout(() => setExported(false), 3000);
   };
@@ -792,6 +1051,72 @@ export const ExportDataPage: React.FC<PageNavProps> = ({ onNavigate }) => {
               <p className="mt-2 text-xs leading-relaxed text-slate-500">{s.desc}</p>
             </div>
           ))}
+        </div>
+
+        {/* Live Visual Product Export Preview (24 Products + 18 Categories) */}
+        <div className="mt-10">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="font-display text-xl font-bold text-slate-900">
+                Preview Export Catalog ({exportCandidates.length} items ready)
+              </h2>
+              <p className="text-xs text-slate-500">
+                Filter by category, inspect PKR wholesale + margin retail prices, or download your CSV above.
+              </p>
+            </div>
+            <select
+              aria-label="Filter export category"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 focus:border-[#0E9F6E] focus:outline-none"
+            >
+              <option value="all">All Categories</option>
+              {CATEGORIES.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+            {exportCandidates.map((p, idx) => (
+              <ProductCard
+                key={`exp-prod-${p.id}`}
+                product={p}
+                staggerIndex={idx}
+                isWishlisted={wishlistIds.includes(p.id)}
+                onToggleWishlist={onToggleWishlist}
+                onQuickAdd={onQuickAdd}
+                onSelect={(prod) => onNavigate({ type: 'product', productId: prod.id })}
+              />
+            ))}
+          </div>
+
+          <h3 className="mt-10 mb-4 font-display text-lg font-bold text-slate-900">
+            Quick-Filter by Category (Click to load in export)
+          </h3>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 lg:grid-cols-9">
+            {SHOP_CATEGORY_TILES.map((tile) => (
+              <button
+                key={`exp-cat-${tile.label}`}
+                type="button"
+                onClick={() => setCategoryFilter(tile.slug)}
+                className="group flex flex-col items-center text-center"
+              >
+                <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-[#F4F5F7] p-1 transition-all group-hover:-translate-y-1 group-hover:border-[#0E9F6E]">
+                  <ProductImage
+                    src={tile.image}
+                    alt={tile.label}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                </div>
+                <span className="mt-1 text-[11px] font-semibold text-slate-700 line-clamp-1 group-hover:text-[#0E9F6E]">
+                  {tile.label}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-[#F8FAFC] p-5">

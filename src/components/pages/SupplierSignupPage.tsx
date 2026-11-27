@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
-import { ArrowLeft, CheckCircle2, Eye, EyeOff, ShieldCheck } from 'lucide-react';
-import { AppView } from '../../types';
-import { HERO_DELIVERY_IMAGE } from '../../data/catalog';
+import { ArrowLeft, CheckCircle2, Eye, EyeOff, ShieldCheck, Store, Truck, Wallet } from 'lucide-react';
+import { AppView, Product, ProductColorVariant } from '../../types';
+import { HERO_DELIVERY_IMAGE, PRODUCTS, SHOP_CATEGORY_TILES } from '../../data/catalog';
 import { MarkazLogo } from '../MarkazLogo';
+import { ProductCard, ProductImage } from '../ProductCard';
 
 interface SupplierSignupPageProps {
   onNavigate: (view: AppView) => void;
+  wishlistIds?: string[];
+  onToggleWishlist?: (id: string) => void;
+  onQuickAdd?: (product: Product, color?: ProductColorVariant) => void;
 }
 
 export const SupplierSignupPage: React.FC<SupplierSignupPageProps> = ({
   onNavigate,
+  wishlistIds = [],
+  onToggleWishlist = () => {},
+  onQuickAdd = () => {},
 }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +24,8 @@ export const SupplierSignupPage: React.FC<SupplierSignupPageProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [dailyParcels, setDailyParcels] = useState(25);
+  const [avgTicket, setAvgTicket] = useState(1900);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,6 +227,128 @@ export const SupplierSignupPage: React.FC<SupplierSignupPageProps> = ({
           )}
         </div>
       </div>
+
+      {/* Seller Ecosystem Showcase Below Hero (37+ studio images + Revenue Estimator) */}
+      <section className="bg-white py-12 text-slate-900">
+        <div className="mx-auto max-w-[1280px] px-4 lg:px-8">
+          <div className="grid grid-cols-1 gap-6 rounded-2xl border border-slate-200 bg-[#F8FAFC] p-6 lg:grid-cols-12 lg:items-center">
+            <div className="lg:col-span-5">
+              <p className="text-xs font-bold uppercase tracking-wider text-[#0E9F6E]">
+                Seller Scale Calculator
+              </p>
+              <h2 className="mt-1 font-display text-2xl font-extrabold text-slate-900">
+                Reach 150,000+ active resellers &amp; shoppers
+              </h2>
+              <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                Upload your wholesale SKUs once. Markaz resellers promote them across WhatsApp, Instagram, and Shopify while our couriers pick up parcels from your warehouse.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-4 text-xs font-semibold text-slate-700">
+                <span className="inline-flex items-center gap-1.5">
+                  <Store className="h-4 w-4 text-[#0E9F6E]" /> Free Onboarding
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Truck className="h-4 w-4 text-[#0E9F6E]" /> Doorstep Pickup
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Wallet className="h-4 w-4 text-[#0E9F6E]" /> Weekly Payouts
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-7">
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="flex justify-between text-xs font-semibold text-slate-700">
+                  <span>Daily Orders</span>
+                  <span className="font-mono-num">{dailyParcels}</span>
+                </div>
+                <input
+                  type="range"
+                  min={5}
+                  max={200}
+                  step={5}
+                  value={dailyParcels}
+                  onChange={(e) => setDailyParcels(Number(e.target.value))}
+                  className="mt-2 w-full accent-[#0E9F6E]"
+                />
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="flex justify-between text-xs font-semibold text-slate-700">
+                  <span>Avg Order (PKR)</span>
+                  <span className="font-mono-num">{avgTicket}</span>
+                </div>
+                <input
+                  type="range"
+                  min={600}
+                  max={6000}
+                  step={100}
+                  value={avgTicket}
+                  onChange={(e) => setAvgTicket(Number(e.target.value))}
+                  className="mt-2 w-full accent-[#0E9F6E]"
+                />
+              </div>
+              <div className="rounded-xl bg-[#0D3B2E] p-4 text-center text-white">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-200">
+                  Est. Monthly GMV
+                </p>
+                <p className="font-mono-num mt-1 text-xl font-extrabold">
+                  PKR {(dailyParcels * avgTicket * 30).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <h3 className="mt-10 mb-4 font-display text-xl font-bold text-slate-900">
+            Top Categories Selling Fast on Markaz
+          </h3>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 lg:grid-cols-9">
+            {SHOP_CATEGORY_TILES.map((tile) => (
+              <button
+                key={`sup-cat-${tile.label}`}
+                type="button"
+                onClick={() => onNavigate({ type: 'category', slug: tile.slug })}
+                className="group flex flex-col items-center text-center"
+              >
+                <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-[#F4F5F7] p-1 transition-all group-hover:-translate-y-1 group-hover:border-[#0E9F6E]">
+                  <ProductImage
+                    src={tile.image}
+                    alt={tile.label}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                </div>
+                <span className="mt-1 text-[11px] font-semibold text-slate-700 line-clamp-1 group-hover:text-[#0E9F6E]">
+                  {tile.label}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-12 mb-4 flex items-end justify-between">
+            <h3 className="font-display text-xl font-bold text-slate-900">
+              High-Demand Marketplace Listings
+            </h3>
+            <button
+              type="button"
+              onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
+              className="text-xs font-semibold text-[#0E9F6E] hover:underline"
+            >
+              View full store →
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+            {PRODUCTS.slice(0, 18).map((p, idx) => (
+              <ProductCard
+                key={`sup-prod-${p.id}`}
+                product={p}
+                staggerIndex={idx}
+                isWishlisted={wishlistIds.includes(p.id)}
+                onToggleWishlist={onToggleWishlist}
+                onQuickAdd={onQuickAdd}
+                onSelect={(prod) => onNavigate({ type: 'product', productId: prod.id })}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

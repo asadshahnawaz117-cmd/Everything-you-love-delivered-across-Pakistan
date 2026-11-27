@@ -18,8 +18,8 @@ import {
   X,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { PRODUCTS } from '../data/catalog';
-import { AppView, Product, ProductColorVariant } from '../types';
+import { PRODUCTS, SHOP_CATEGORY_TILES } from '../data/catalog';
+import { AppView, Product, ProductColorVariant, ProductReview } from '../types';
 import { ProductCard, ProductImage } from './ProductCard';
 
 interface ProductDetailViewProps {
@@ -72,6 +72,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   const [addedFeedback, setAddedFeedback] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'reviews'>('overview');
   const [zoomOpen, setZoomOpen] = useState(false);
+  const [userReviews, setUserReviews] = useState<ProductReview[]>([]);
+  const [revName, setRevName] = useState('');
+  const [revRating, setRevRating] = useState(5);
+  const [revComment, setRevComment] = useState('');
 
   useEffect(() => {
     setSelectedColorIdx(0);
@@ -83,6 +87,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     setAddedFeedback(false);
     setActiveTab('overview');
     setZoomOpen(false);
+    setUserReviews([]);
   }, [product]);
 
   const activeColor = product.colors[selectedColorIdx] || product.colors[0];
@@ -109,17 +114,46 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
 
   const similarProducts = PRODUCTS.filter(
     (p) => p.id !== product.id && p.category === product.category
-  ).slice(0, 4);
+  ).slice(0, 12);
 
   const fallbackSimilar =
-    similarProducts.length >= 4
+    similarProducts.length >= 12
       ? similarProducts
       : [
           ...similarProducts,
           ...PRODUCTS.filter(
             (p) => p.id !== product.id && !similarProducts.some((sp) => sp.id === p.id)
           ),
-        ].slice(0, 4);
+        ].slice(0, 12);
+
+  const alsoViewedProducts = PRODUCTS.filter(
+    (p) => p.id !== product.id && p.origin === product.origin
+  ).slice(0, 12);
+
+  const trendingProducts = PRODUCTS.filter(
+    (p) => p.id !== product.id && (p.featured || p.trending)
+  ).slice(0, 12);
+
+  const allReviews = [...userReviews, ...product.reviews];
+
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!revComment.trim()) return;
+    setUserReviews((prev) => [
+      {
+        id: `usr-rev-${Date.now()}`,
+        author: revName.trim() || 'Verified Buyer',
+        rating: revRating,
+        comment: revComment.trim(),
+        date: 'Just now',
+        verifiedPurchase: true,
+      },
+      ...prev,
+    ]);
+    setRevName('');
+    setRevComment('');
+    setRevRating(5);
+  };
 
   const handleCopyShare = () => {
     if (navigator.clipboard) {
@@ -702,7 +736,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 : 'border-transparent text-slate-500 hover:text-slate-900'
             }`}
           >
-            Ratings &amp; reviews ({product.reviews.length})
+            Ratings &amp; reviews ({allReviews.length})
           </button>
         </div>
 
@@ -750,41 +784,94 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             </ul>
           </div>
         ) : (
-          <div className="mt-6 space-y-4">
-            {product.reviews.length === 0 ? (
+          <div className="mt-6 space-y-5">
+            <form
+              onSubmit={handleReviewSubmit}
+              className="rounded-xl border border-slate-200 bg-[#F7F8FA] p-4"
+            >
+              <p className="text-xs font-bold text-slate-900">Write a customer review</p>
+              <div className="mt-2.5 flex flex-wrap items-center gap-3">
+                <input
+                  type="text"
+                  value={revName}
+                  onChange={(e) => setRevName(e.target.value)}
+                  placeholder="Your name (e.g. Ayesha K.)"
+                  className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs focus:border-[#0E9F6E] focus:outline-none"
+                />
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((starVal) => (
+                    <button
+                      key={starVal}
+                      type="button"
+                      onClick={() => setRevRating(starVal)}
+                      aria-label={`Rate ${starVal} stars`}
+                      className="p-0.5"
+                    >
+                      <Star
+                        className={`h-4 w-4 ${
+                          starVal <= revRating
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'text-slate-300'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-2.5 flex flex-col gap-2 sm:flex-row">
+                <input
+                  type="text"
+                  required
+                  value={revComment}
+                  onChange={(e) => setRevComment(e.target.value)}
+                  placeholder="Share quality, delivery speed, or sizing feedback..."
+                  className="h-9 flex-1 rounded-lg border border-slate-300 bg-white px-3 text-xs focus:border-[#0E9F6E] focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="h-9 rounded-lg bg-[#0E9F6E] px-4 text-xs font-bold text-white hover:bg-[#057A55]"
+                >
+                  Post review
+                </button>
+              </div>
+            </form>
+
+            {allReviews.length === 0 ? (
               <p className="text-sm text-slate-500">
                 Overall seller rating is {product.rating.toFixed(1)}/5.0 across{' '}
                 {product.soldCount} orders.
               </p>
             ) : (
-              product.reviews.map((rev) => (
-                <div
-                  key={rev.id}
-                  className="rounded-xl border border-slate-100 bg-[#F7F8FA] p-4"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-bold text-slate-900">
-                      {rev.author}
-                    </span>
-                    <span className="text-xs text-slate-400">{rev.date}</span>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {allReviews.map((rev) => (
+                  <div
+                    key={rev.id}
+                    className="rounded-xl border border-slate-100 bg-[#F7F8FA] p-4"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-bold text-slate-900">
+                        {rev.author}
+                      </span>
+                      <span className="text-xs text-slate-400">{rev.date}</span>
+                    </div>
+                    <div className="mt-1 flex items-center gap-1">
+                      {Array.from({ length: rev.rating }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className="h-3.5 w-3.5 fill-amber-400 text-amber-400"
+                        />
+                      ))}
+                    </div>
+                    <p className="mt-2 text-sm text-slate-700">{rev.comment}</p>
                   </div>
-                  <div className="mt-1 flex items-center gap-1">
-                    {Array.from({ length: rev.rating }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-3.5 w-3.5 fill-amber-400 text-amber-400"
-                      />
-                    ))}
-                  </div>
-                  <p className="mt-2 text-sm text-slate-700">{rev.comment}</p>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         )}
       </section>
 
-      {/* Similar Products */}
+      {/* Similar Products (12 items) */}
       <section className="mt-12">
         <div className="mb-4 flex items-end justify-between">
           <h2 className="font-display text-xl font-bold text-slate-900">
@@ -799,16 +886,103 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {fallbackSimilar.map((item) => (
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+          {fallbackSimilar.map((item, idx) => (
             <ProductCard
-              key={item.id}
+              key={`sim-${item.id}`}
               product={item}
+              staggerIndex={idx}
               isWishlisted={wishlistIds.includes(item.id)}
               onToggleWishlist={onToggleWishlist}
               onQuickAdd={onQuickAdd}
               onSelect={onSelectProduct}
             />
+          ))}
+        </div>
+      </section>
+
+      {/* Customers Also Viewed (12 items) */}
+      <section className="mt-12">
+        <div className="mb-4 flex items-end justify-between">
+          <h2 className="font-display text-xl font-bold text-slate-900">
+            Customers also viewed
+          </h2>
+          <button
+            type="button"
+            onClick={() => onNavigate({ type: 'shop', origin: product.origin })}
+            className="text-xs font-semibold text-[#0E9F6E] hover:underline"
+          >
+            Explore more →
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+          {alsoViewedProducts.map((item, idx) => (
+            <ProductCard
+              key={`also-${item.id}`}
+              product={item}
+              staggerIndex={idx}
+              isWishlisted={wishlistIds.includes(item.id)}
+              onToggleWishlist={onToggleWishlist}
+              onQuickAdd={onQuickAdd}
+              onSelect={onSelectProduct}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Trending on Markaz (12 items) */}
+      <section className="mt-12">
+        <div className="mb-4 flex items-end justify-between">
+          <h2 className="font-display text-xl font-bold text-slate-900">
+            Trending across Markaz
+          </h2>
+          <button
+            type="button"
+            onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
+            className="text-xs font-semibold text-[#0E9F6E] hover:underline"
+          >
+            Open Shop →
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+          {trendingProducts.map((item, idx) => (
+            <ProductCard
+              key={`trd-${item.id}`}
+              product={item}
+              staggerIndex={idx}
+              isWishlisted={wishlistIds.includes(item.id)}
+              onToggleWishlist={onToggleWishlist}
+              onQuickAdd={onQuickAdd}
+              onSelect={onSelectProduct}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Explore All 18 Categories */}
+      <section className="mt-12 border-t border-slate-200 pt-8">
+        <h2 className="mb-4 font-display text-lg font-bold text-slate-900">
+          Browse related categories
+        </h2>
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 lg:grid-cols-9">
+          {SHOP_CATEGORY_TILES.map((tile) => (
+            <button
+              key={`pdp-cat-${tile.label}`}
+              type="button"
+              onClick={() => onNavigate({ type: 'category', slug: tile.slug })}
+              className="group flex flex-col items-center text-center"
+            >
+              <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-[#F4F5F7] p-1 transition-all group-hover:-translate-y-1 group-hover:border-[#0E9F6E]">
+                <ProductImage
+                  src={tile.image}
+                  alt={tile.label}
+                  className="h-full w-full rounded-full object-cover"
+                />
+              </div>
+              <span className="mt-1 text-[11px] font-semibold text-slate-700 line-clamp-1 group-hover:text-[#0E9F6E]">
+                {tile.label}
+              </span>
+            </button>
           ))}
         </div>
       </section>

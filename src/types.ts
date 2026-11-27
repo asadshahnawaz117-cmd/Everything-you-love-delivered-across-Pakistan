@@ -134,6 +134,7 @@ export type AppView =
   | { type: 'home' }
   | { type: 'shop'; origin: MarketplaceOrigin }
   | { type: 'category'; slug: CategorySlug }
+  | { type: 'collection'; collectionId: string; title: string }
   | { type: 'search'; query: string }
   | { type: 'product'; productId: string }
   | { type: 'wishlist' }

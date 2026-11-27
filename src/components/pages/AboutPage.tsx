@@ -1,10 +1,19 @@
-import React from 'react';
-import { CheckCircle2, Eye, HelpCircle, Mail, Phone, Target } from 'lucide-react';
-import { AppView } from '../../types';
-import { HERO_DELIVERY_IMAGE } from '../../data/catalog';
+import React, { useState } from 'react';
+import { CheckCircle2, Eye, HelpCircle, Mail, Phone, Send, Target } from 'lucide-react';
+import { AppView, Product, ProductColorVariant } from '../../types';
+import {
+  HERO_DELIVERY_IMAGE,
+  PRODUCTS,
+  SHOP_CATEGORY_TILES,
+  STUDIO_IMAGES,
+} from '../../data/catalog';
+import { ProductCard, ProductImage } from '../ProductCard';
 
 interface AboutPageProps {
   onNavigate: (view: AppView) => void;
+  wishlistIds?: string[];
+  onToggleWishlist?: (id: string) => void;
+  onQuickAdd?: (product: Product, color?: ProductColorVariant) => void;
 }
 
 const VALUES = [
@@ -73,17 +82,34 @@ const VALUES = [
 ];
 
 const CULTURE_GALLERY = [
-  { label: 'Team Townhall', img: '/src/assets/images/product_bestselling_books_1795763315995.jpg' },
+  { label: 'Team Townhall', img: STUDIO_IMAGES.books },
   { label: 'Operations Hub', img: HERO_DELIVERY_IMAGE },
-  { label: 'Seller Workshop', img: '/src/assets/images/product_womens_lawn_1795762080335.jpg' },
-  { label: 'Quality Lab', img: '/src/assets/images/product_kitchen_cookware_1795763313107.jpg' },
-  { label: 'Islamabad HQ', img: '/src/assets/images/product_mens_watches_1795762083250.jpg' },
-  { label: 'Product Studio', img: '/src/assets/images/product_cosmetics_kit_1795762082385.jpg' },
-  { label: 'Growth Retreat', img: '/src/assets/images/product_perfume_bottles_1795763310790.jpg' },
-  { label: 'Logistics Team', img: '/src/assets/images/product_shoes_white_joggers_1795762744613.jpg' },
+  { label: 'Seller Workshop', img: STUDIO_IMAGES.lawnEmerald },
+  { label: 'Quality Lab', img: STUDIO_IMAGES.cookware },
+  { label: 'Islamabad HQ', img: STUDIO_IMAGES.chronoWatch },
+  { label: 'Product Studio', img: STUDIO_IMAGES.cosmetics },
+  { label: 'Growth Retreat', img: STUDIO_IMAGES.oudBox },
+  { label: 'Logistics Team', img: STUDIO_IMAGES.shoesWhite },
+  { label: 'Fashion Curation', img: STUDIO_IMAGES.festivePeach },
+  { label: 'China Sourcing Desk', img: STUDIO_IMAGES.projector },
+  { label: 'Kitchen Testing', img: STUDIO_IMAGES.airFryer },
+  { label: 'Apparel Studio', img: STUDIO_IMAGES.mensKurta },
+  { label: 'Packaging Standards', img: STUDIO_IMAGES.teaSet },
+  { label: 'Home & Decor Edit', img: STUDIO_IMAGES.wallDecor },
+  { label: 'Reseller Community', img: STUDIO_IMAGES.bag },
+  { label: 'Express Dispatch', img: STUDIO_IMAGES.homeOrganizer },
 ];
 
-export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
+export const AboutPage: React.FC<AboutPageProps> = ({
+  onNavigate,
+  wishlistIds = [],
+  onToggleWishlist = () => {},
+  onQuickAdd = () => {},
+}) => {
+  const [contactSent, setContactSent] = useState(false);
+  const [supportName, setSupportName] = useState('');
+  const [supportEmail, setSupportEmail] = useState('');
+  const [supportMsg, setSupportMsg] = useState('');
   return (
     <div className="bg-white">
       {/* Hero */}
@@ -241,6 +267,85 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
           </button>
         </div>
 
+        {/* Interactive Contact Inquiry Form */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setContactSent(true);
+          }}
+          className="mt-6 rounded-2xl border border-slate-200 bg-[#F8FAFC] p-5 sm:p-6"
+        >
+          {contactSent ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-emerald-800">
+              <span className="inline-flex items-center gap-2 font-semibold">
+                <CheckCircle2 className="h-4 w-4 text-[#0E9F6E]" />
+                Message received! Our Islamabad team will reply to {supportEmail || 'you'} within 24 hours.
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setContactSent(false);
+                  setSupportMsg('');
+                }}
+                className="font-bold underline"
+              >
+                Send another
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-12 sm:items-end">
+              <div className="sm:col-span-3">
+                <label className="mb-1 block text-[11px] font-semibold text-slate-600">
+                  Your Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={supportName}
+                  onChange={(e) => setSupportName(e.target.value)}
+                  placeholder="Asad Khan"
+                  className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs focus:border-[#0E9F6E] focus:outline-none"
+                />
+              </div>
+              <div className="sm:col-span-3">
+                <label className="mb-1 block text-[11px] font-semibold text-slate-600">
+                  Email / Phone
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={supportEmail}
+                  onChange={(e) => setSupportEmail(e.target.value)}
+                  placeholder="name@email.com"
+                  className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs focus:border-[#0E9F6E] focus:outline-none"
+                />
+              </div>
+              <div className="sm:col-span-4">
+                <label className="mb-1 block text-[11px] font-semibold text-slate-600">
+                  How can we help?
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={supportMsg}
+                  onChange={(e) => setSupportMsg(e.target.value)}
+                  placeholder="Question about wholesale, COD, or seller onboarding..."
+                  className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs focus:border-[#0E9F6E] focus:outline-none"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <button
+                  type="submit"
+                  className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-[#0E9F6E] px-4 text-xs font-bold text-white hover:bg-[#057A55]"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  <span>Send</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </form>
+
         <p className="mt-5 text-center text-xs text-slate-500">
           New to Markaz? Start{' '}
           <button
@@ -278,11 +383,11 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
         </p>
       </section>
 
-      {/* Culture Grid (Matches video 01:30–01:34) */}
+      {/* Culture Grid (16 showcase photos) */}
       <section className="mx-auto max-w-[1280px] px-4 pb-8 lg:px-6">
         <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-[#181B68] via-[#13516A] to-[#139D53] p-6 sm:p-8">
           <h2 className="text-center font-display text-lg font-bold text-white">
-            Culture
+            Culture &amp; Operations
           </h2>
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {CULTURE_GALLERY.map((item) => (
@@ -301,6 +406,60 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Marketplace Highlights (18 products + 18 categories) */}
+      <section className="mx-auto max-w-[1280px] px-4 pt-6 pb-12 lg:px-6">
+        <div className="mb-4 flex items-end justify-between">
+          <h2 className="font-display text-xl font-bold text-slate-900">
+            Inside the Markaz Marketplace
+          </h2>
+          <button
+            type="button"
+            onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
+            className="text-xs font-semibold text-[#0E9F6E] hover:underline"
+          >
+            Shop all products →
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+          {PRODUCTS.slice(0, 18).map((p, idx) => (
+            <ProductCard
+              key={`abt-prod-${p.id}`}
+              product={p}
+              staggerIndex={idx}
+              isWishlisted={wishlistIds.includes(p.id)}
+              onToggleWishlist={onToggleWishlist}
+              onQuickAdd={onQuickAdd}
+              onSelect={(prod) => onNavigate({ type: 'product', productId: prod.id })}
+            />
+          ))}
+        </div>
+
+        <h3 className="mt-10 mb-4 font-display text-lg font-bold text-slate-900">
+          Categories we power across Pakistan
+        </h3>
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 lg:grid-cols-9">
+          {SHOP_CATEGORY_TILES.map((tile) => (
+            <button
+              key={`abt-cat-${tile.label}`}
+              type="button"
+              onClick={() => onNavigate({ type: 'category', slug: tile.slug })}
+              className="group flex flex-col items-center text-center"
+            >
+              <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-[#F4F5F7] p-1 transition-all group-hover:-translate-y-1 group-hover:border-[#0E9F6E]">
+                <ProductImage
+                  src={tile.image}
+                  alt={tile.label}
+                  className="h-full w-full rounded-full object-cover"
+                />
+              </div>
+              <span className="mt-1 text-[11px] font-semibold text-slate-700 line-clamp-1 group-hover:text-[#0E9F6E]">
+                {tile.label}
+              </span>
+            </button>
+          ))}
         </div>
       </section>
     </div>

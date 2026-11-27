@@ -284,6 +284,22 @@ export default function App() {
           />
         )}
 
+        {view.type === 'collection' && (
+          <CatalogView
+            mode="collection"
+            collectionId={view.collectionId}
+            collectionTitle={view.title}
+            recentSearches={recentSearches}
+            wishlistIds={wishlistIds}
+            onNavigate={navigateTo}
+            onSearchSubmit={handleSearchSubmit}
+            onRemoveRecentSearch={handleRemoveRecentSearch}
+            onToggleWishlist={handleToggleWishlist}
+            onQuickAdd={handleQuickAdd}
+            onSelectProduct={handleSelectProduct}
+          />
+        )}
+
         {view.type === 'search' && (
           <CatalogView
             mode="search"
@@ -324,37 +340,95 @@ export default function App() {
         )}
 
         {view.type === 'orders' && (
-          <OrdersView orders={orders} onNavigate={navigateTo} />
+          <OrdersView
+            orders={orders}
+            wishlistIds={wishlistIds}
+            onNavigate={navigateTo}
+            onToggleWishlist={handleToggleWishlist}
+            onQuickAdd={handleQuickAdd}
+            onSelectProduct={handleSelectProduct}
+          />
         )}
 
         {view.type === 'resell' && (
-          <DropshippingPortalPage onNavigate={navigateTo} />
+          <DropshippingPortalPage
+            onNavigate={navigateTo}
+            wishlistIds={wishlistIds}
+            onToggleWishlist={handleToggleWishlist}
+            onQuickAdd={handleQuickAdd}
+          />
         )}
 
         {view.type === 'reseller-app' && (
-          <ResellerAppPage onNavigate={navigateTo} />
+          <ResellerAppPage
+            onNavigate={navigateTo}
+            wishlistIds={wishlistIds}
+            onToggleWishlist={handleToggleWishlist}
+            onQuickAdd={handleQuickAdd}
+          />
         )}
 
         {view.type === 'shopify' && (
-          <StoreIntegrationPage platform="shopify" onNavigate={navigateTo} />
+          <StoreIntegrationPage
+            platform="shopify"
+            onNavigate={navigateTo}
+            wishlistIds={wishlistIds}
+            onToggleWishlist={handleToggleWishlist}
+            onQuickAdd={handleQuickAdd}
+          />
         )}
 
         {view.type === 'woocommerce' && (
-          <StoreIntegrationPage platform="woocommerce" onNavigate={navigateTo} />
+          <StoreIntegrationPage
+            platform="woocommerce"
+            onNavigate={navigateTo}
+            wishlistIds={wishlistIds}
+            onToggleWishlist={handleToggleWishlist}
+            onQuickAdd={handleQuickAdd}
+          />
         )}
 
         {view.type === 'export-data' && (
-          <ExportDataPage onNavigate={navigateTo} />
+          <ExportDataPage
+            onNavigate={navigateTo}
+            wishlistIds={wishlistIds}
+            onToggleWishlist={handleToggleWishlist}
+            onQuickAdd={handleQuickAdd}
+          />
         )}
 
-        {view.type === 'about' && <AboutPage onNavigate={navigateTo} />}
+        {view.type === 'about' && (
+          <AboutPage
+            onNavigate={navigateTo}
+            wishlistIds={wishlistIds}
+            onToggleWishlist={handleToggleWishlist}
+            onQuickAdd={handleQuickAdd}
+          />
+        )}
 
-        {view.type === 'blog' && <BlogPage onNavigate={navigateTo} />}
+        {view.type === 'blog' && (
+          <BlogPage
+            onNavigate={navigateTo}
+            wishlistIds={wishlistIds}
+            onToggleWishlist={handleToggleWishlist}
+            onQuickAdd={handleQuickAdd}
+          />
+        )}
 
-        {view.type === 'affiliate' && <AffiliatePage onNavigate={navigateTo} />}
+        {view.type === 'affiliate' && (
+          <AffiliatePage
+            onNavigate={navigateTo}
+            onQuickAdd={handleQuickAdd}
+          />
+        )}
 
         {view.type === 'supplier' && (
-          <SupplierSignupPage onNavigate={navigateTo} />
+          <SupplierSignupPage
+            onNavigate={navigateTo}
+            wishlistIds={wishlistIds}
+            onToggleWishlist={handleToggleWishlist}
+            onQuickAdd={handleQuickAdd}
+          />
         )}
       </main>
 

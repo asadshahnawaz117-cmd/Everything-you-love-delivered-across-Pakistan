@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { ArrowRight, BookOpen, Calendar, X } from 'lucide-react';
-import { AppView } from '../../types';
+import { ArrowRight, BookOpen, Calendar, Search, X } from 'lucide-react';
+import { PRODUCTS, SHOP_CATEGORY_TILES, STUDIO_IMAGES } from '../../data/catalog';
+import { AppView, Product, ProductColorVariant } from '../../types';
+import { ProductCard, ProductImage } from '../ProductCard';
 
 interface BlogArticle {
   id: string;
@@ -9,6 +11,7 @@ interface BlogArticle {
   date: string;
   excerpt: string;
   theme: string;
+  img: string;
   readTime: string;
   body: string[];
 }
@@ -36,6 +39,7 @@ const BLOG_ARTICLES: BlogArticle[] = [
     date: '15 Oct 2026',
     readTime: '4 min read',
     theme: 'from-[#0F172A] to-[#1E3A5F]',
+    img: STUDIO_IMAGES.abaya,
     excerpt: 'Nida, crepe or georgette? How the three abaya fabrics differ on drape, opacity, summer breathability and price.',
     body: [
       'When shopping for abayas online in Pakistan, fabric choice decides comfort far more than embroidery alone. Korean Nida leads for formal occasions thanks to its smooth matte sheen and full opacity without lining.',
@@ -50,6 +54,7 @@ const BLOG_ARTICLES: BlogArticle[] = [
     date: '14 Sep 2026',
     readTime: '3 min read',
     theme: 'from-[#0B2D26] to-[#145345]',
+    img: STUDIO_IMAGES.homeOrganizer,
     excerpt: 'The customer pays delivery on an order that completes. You carry 0 when a COD parcel is refused. Here is how Markaz handles shipping.',
     body: [
       'New resellers often worry they will lose money out of pocket if a Cash on Delivery parcel returns unpaid. With Markaz, zero upfront deposit is charged from your wallet.',
@@ -63,6 +68,7 @@ const BLOG_ARTICLES: BlogArticle[] = [
     date: '1 Sep 2026',
     readTime: '5 min read',
     theme: 'from-[#1B1A4B] to-[#0F4C5C]',
+    img: STUDIO_IMAGES.kurtiRed,
     excerpt: 'A refund request is not a fight. The first four kinds of issues, what returns, what to say in the chat, and how Markaz protects buyers.',
     body: [
       'Clear return expectations turn first-time COD buyers into repeat customers. Every Markaz order carries a transparent 7-day replacement or return window if a product arrives damaged or mismatched.',
@@ -76,6 +82,7 @@ const BLOG_ARTICLES: BlogArticle[] = [
     date: '30 Oct 2026',
     readTime: '4 min read',
     theme: 'from-[#1E293B] to-[#334155]',
+    img: STUDIO_IMAGES.projector,
     excerpt: 'FOB price is what a supplier charges to load your goods onto the ship. What EXW, FOB and CIF each cover for importers.',
     body: [
       'Understanding Free On Board (FOB) pricing helps small merchants compare factory quotes from Yiwu and Shenzhen accurately against landed PKR prices.',
@@ -89,6 +96,7 @@ const BLOG_ARTICLES: BlogArticle[] = [
     date: '5 Jan 2026',
     readTime: '6 min read',
     theme: 'from-[#064E3B] to-[#0E7490]',
+    img: STUDIO_IMAGES.cosmetics,
     excerpt: 'Discover how to earn money through social commerce in Pakistan using WhatsApp, Instagram Reels, and Markaz product links.',
     body: [
       'You do not need expensive hosting or custom checkout gateways to make your first 50 sales in Pakistan. Start with crisp studio photos, transparent PKR pricing, and quick WhatsApp Business catalog replies.',
@@ -102,6 +110,7 @@ const BLOG_ARTICLES: BlogArticle[] = [
     date: '31 Dec 2025',
     readTime: '7 min read',
     theme: 'from-[#0F172A] to-[#0E9F6E]',
+    img: STUDIO_IMAGES.smartwatch,
     excerpt: 'Wondering what are the top easy ways to earn money in Pakistan? Compare reselling, affiliate sharing, and zero-investment stores.',
     body: [
       'From zero-investment social reselling on Markaz to curated Shopify dropshipping and affiliate content creation, digital commerce lets students and home earners build steady PKR income without inventory risk.',
@@ -114,6 +123,7 @@ const BLOG_ARTICLES: BlogArticle[] = [
     date: '17 Sep 2025',
     readTime: '4 min read',
     theme: 'from-[#092319] to-[#13795B]',
+    img: STUDIO_IMAGES.lawnEmerald,
     excerpt: 'Discover why Markaz is Pakistan’s #1 online app empowering over 150,000 entrepreneurs with verified products and COD.',
     body: [
       'Built for Pakistan’s mobile-first sellers and shoppers, Markaz combines verified local suppliers, China factory sourcing, and nationwide courier rails into one reliable platform.',
@@ -126,6 +136,7 @@ const BLOG_ARTICLES: BlogArticle[] = [
     date: '6 Oct 2026',
     readTime: '3 min read',
     theme: 'from-[#312E81] to-[#1E40AF]',
+    img: STUDIO_IMAGES.shoesWhite,
     excerpt: 'Measure your foot in cm, then buy against the size chart. How UK, US, EU and CN sizes line up across Pakistan.',
     body: [
       'Stand on paper against a wall, mark heel to longest toe in centimeters, and match CM length rather than guessing between UK and EU labels.',
@@ -138,6 +149,7 @@ const BLOG_ARTICLES: BlogArticle[] = [
     date: '14 Jul 2026',
     readTime: '5 min read',
     theme: 'from-[#065F46] to-[#047857]',
+    img: STUDIO_IMAGES.airFryer,
     excerpt: 'Compare wholesale margin control, zero-inventory shipping, and payout timelines for Pakistani online resellers.',
     body: [
       'While traditional marketplaces charge seller commissions and require holding stock, Markaz lets resellers set their own profit margin per order with zero upfront inventory.',
@@ -150,6 +162,7 @@ const BLOG_ARTICLES: BlogArticle[] = [
     date: '15 Aug 2026',
     readTime: '4 min read',
     theme: 'from-[#1E293B] to-[#0F766E]',
+    img: STUDIO_IMAGES.oudBox,
     excerpt: 'A second item in the same order delivers higher reseller margins while keeping shipping flat for your customer.',
     body: [
       'Pair matching earrings with stitched kurtis or bundle travel tumblers with kitchen choppers to increase customer value and boost your profit per parcel.',
@@ -162,6 +175,7 @@ const BLOG_ARTICLES: BlogArticle[] = [
     date: '11 Jul 2026',
     readTime: '5 min read',
     theme: 'from-[#0F172A] to-[#475569]',
+    img: STUDIO_IMAGES.books,
     excerpt: 'Essential Urdu and English titles delivered nationwide from Urdu Bazaar suppliers on Markaz.',
     body: [
       'Explore bestselling business, mindset, and classic Urdu literature bundles priced fairly for students and book clubs across Pakistan.',
@@ -174,35 +188,117 @@ const BLOG_ARTICLES: BlogArticle[] = [
     date: '29 Sep 2026',
     readTime: '5 min read',
     theme: 'from-[#134E4A] to-[#0F172A]',
+    img: STUDIO_IMAGES.keyboardMouse,
     excerpt: 'Practical Conversion Rate Optimization tips for Pakistani Shopify and WooCommerce dropshipping storefronts.',
     body: [
       'Show clear PKR Cash on Delivery badges above the fold, highlight 7-day return protection, and keep checkout mobile forms fast and simple.',
     ],
   },
+  {
+    id: 'eid-lawn-trends',
+    title: 'Top 3-Piece Lawn & Chiffon Prints Selling Best This Season',
+    category: 'Product',
+    date: '18 Oct 2026',
+    readTime: '4 min read',
+    theme: 'from-[#064E3B] to-[#047857]',
+    img: STUDIO_IMAGES.festivePeach,
+    excerpt: 'How boutique resellers pick unstitched and embroidered festive suits with 98% customer repeat rates.',
+    body: [
+      'Breathable swiss voile dupattas paired with pastel embroidery consistently lead order volumes across Lahore, Karachi, and Islamabad.',
+    ],
+  },
+  {
+    id: 'china-gadgets-margin',
+    title: 'High-Margin China Tech & Gadgets Under PKR 2,500',
+    category: 'Case Study',
+    date: '10 Oct 2026',
+    readTime: '5 min read',
+    theme: 'from-[#1E3A8A] to-[#0F172A]',
+    img: STUDIO_IMAGES.earbuds,
+    excerpt: 'How student dropshippers scale wireless earbuds, power banks, and mini projectors on TikTok Shop & Instagram.',
+    body: [
+      'Compact China electronics deliver strong impulse demand and clean 25–40% reseller margins without bulky packaging.',
+    ],
+  },
+  {
+    id: 'kitchen-essentials-cod',
+    title: 'Why Home & Kitchen Appliances Dominate COD Repeat Orders',
+    category: 'Case Study',
+    date: '2 Oct 2026',
+    readTime: '4 min read',
+    theme: 'from-[#7C2D12] to-[#0F172A]',
+    img: STUDIO_IMAGES.teaSet,
+    excerpt: 'Electric choppers, kettles, air fryers, and storage bins solve everyday household problems across Tier-2 cities.',
+    body: [
+      'Short 15-second demo clips showing before-and-after kitchen cleanup drive high conversion rates in Multan, Faisalabad, and Rawalpindi.',
+    ],
+  },
+  {
+    id: 'skincare-serum-guide',
+    title: 'Skincare & Niacinamide Serums: What Pakistani Buyers Look For',
+    category: 'Product',
+    date: '25 Sep 2026',
+    readTime: '4 min read',
+    theme: 'from-[#831843] to-[#312E81]',
+    img: STUDIO_IMAGES.serumKit,
+    excerpt: 'Authentic glow kits, vitamin C serums, and bridal makeup sets with verified supplier seals.',
+    body: [
+      'Clear ingredient lists, batch expiry transparency, and combo kit value help beauty resellers build lifelong customer trust.',
+    ],
+  },
 ];
 
-export const BlogPage: React.FC<{ onNavigate: (view: AppView) => void }> = ({
+export const BlogPage: React.FC<{
+  onNavigate: (view: AppView) => void;
+  wishlistIds?: string[];
+  onToggleWishlist?: (id: string) => void;
+  onQuickAdd?: (product: Product, color?: ProductColorVariant) => void;
+}> = ({
   onNavigate,
+  wishlistIds = [],
+  onToggleWishlist = () => {},
+  onQuickAdd = () => {},
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [articleQuery, setArticleQuery] = useState('');
   const [readingArticle, setReadingArticle] = useState<BlogArticle | null>(null);
 
-  const visibleArticles =
-    selectedCategory === 'All'
-      ? BLOG_ARTICLES
-      : BLOG_ARTICLES.filter((a) => a.category === selectedCategory);
+  const visibleArticles = BLOG_ARTICLES.filter((a) => {
+    const matchCat = selectedCategory === 'All' || a.category === selectedCategory;
+    const q = articleQuery.trim().toLowerCase();
+    const matchSearch =
+      !q ||
+      a.title.toLowerCase().includes(q) ||
+      a.excerpt.toLowerCase().includes(q) ||
+      a.category.toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
 
   return (
     <div className="bg-[#F8FAFC] pb-12">
       {/* Header */}
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-[1280px] px-4 py-9 lg:px-6">
-          <h1 className="font-display text-3xl font-extrabold text-slate-900">
-            Markaz Blog
-          </h1>
-          <p className="mt-1.5 text-sm text-slate-500">
-            Dropshipping, business ideas and earning guides for Pakistan.
-          </p>
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <h1 className="font-display text-3xl font-extrabold text-slate-900">
+                Markaz Blog
+              </h1>
+              <p className="mt-1.5 text-sm text-slate-500">
+                Dropshipping, business ideas and earning guides for Pakistan.
+              </p>
+            </div>
+            <div className="relative w-full sm:w-72">
+              <Search className="pointer-events-none absolute top-3 left-3 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                value={articleQuery}
+                onChange={(e) => setArticleQuery(e.target.value)}
+                placeholder="Search guides & topics..."
+                className="h-10 w-full rounded-full border border-slate-200 bg-[#F8FAFC] pr-4 pl-9 text-xs focus:border-[#0E9F6E] focus:bg-white focus:outline-none"
+              />
+            </div>
+          </div>
 
           {/* Category Filter Pills (Matches video 01:45) */}
           <div className="mt-5 flex flex-wrap gap-2">
@@ -238,13 +334,13 @@ export const BlogPage: React.FC<{ onNavigate: (view: AppView) => void }> = ({
         </div>
       </section>
 
-      {/* Articles Grid */}
+      {/* Articles Grid with Real Studio Cover Photos */}
       <section className="mx-auto max-w-[1280px] px-4 pt-9 lg:px-6">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-display text-xl font-bold text-slate-900">
             {selectedCategory === 'All'
-              ? 'Latest from across the blog'
-              : selectedCategory}
+              ? `Latest from across the blog (${visibleArticles.length})`
+              : `${selectedCategory} (${visibleArticles.length})`}
           </h2>
           <button
             type="button"
@@ -261,20 +357,28 @@ export const BlogPage: React.FC<{ onNavigate: (view: AppView) => void }> = ({
               key={article.id}
               className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white transition-all hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div
-                className={`relative flex h-40 flex-col justify-between bg-gradient-to-br ${article.theme} p-4 text-white`}
+              <button
+                type="button"
+                onClick={() => setReadingArticle(article)}
+                className={`relative flex h-44 w-full flex-col justify-between overflow-hidden bg-gradient-to-br ${article.theme} p-4 text-left text-white`}
               >
-                <span className="self-start rounded-full bg-white/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-200">
+                <img
+                  src={article.img}
+                  alt={article.title}
+                  className="absolute inset-0 h-full w-full object-cover opacity-55 transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/20" />
+                <span className="relative z-10 self-start rounded-full bg-white/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-100 backdrop-blur-xs">
                   {article.category}
                 </span>
-                <p className="font-display text-base font-bold leading-snug line-clamp-2">
+                <p className="relative z-10 font-display text-sm font-bold leading-snug line-clamp-2">
                   {article.title}
                 </p>
-              </div>
+              </button>
 
               <div className="flex flex-1 flex-col p-4">
                 <span className="inline-block self-start rounded bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-[#0E9F6E]">
-                  {article.category}
+                  {article.category} · {article.readTime}
                 </span>
                 <h3 className="mt-2 font-display text-sm font-bold leading-snug text-slate-900 line-clamp-2 group-hover:text-[#0E9F6E]">
                   {article.title}
@@ -296,6 +400,66 @@ export const BlogPage: React.FC<{ onNavigate: (view: AppView) => void }> = ({
                 </div>
               </div>
             </article>
+          ))}
+        </div>
+      </section>
+
+      {/* Products Featured in Our Guides (24 ProductCards + 18 Categories) */}
+      <section className="mx-auto max-w-[1280px] px-4 pt-12 lg:px-6">
+        <div className="mb-4 flex items-end justify-between">
+          <div>
+            <h2 className="font-display text-xl font-bold text-slate-900">
+              Products Featured in Our Guides
+            </h2>
+            <p className="text-xs text-slate-500">
+              Start selling or buying the winning SKUs covered in Markaz Playbooks.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
+            className="text-xs font-semibold text-[#0E9F6E] hover:underline"
+          >
+            Open Shop →
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+          {PRODUCTS.slice(0, 24).map((p, idx) => (
+            <ProductCard
+              key={`blog-prod-${p.id}`}
+              product={p}
+              staggerIndex={idx}
+              isWishlisted={wishlistIds.includes(p.id)}
+              onToggleWishlist={onToggleWishlist}
+              onQuickAdd={onQuickAdd}
+              onSelect={(prod) => onNavigate({ type: 'product', productId: prod.id })}
+            />
+          ))}
+        </div>
+
+        <h3 className="mt-10 mb-4 font-display text-lg font-bold text-slate-900">
+          Browse by Category
+        </h3>
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 lg:grid-cols-9">
+          {SHOP_CATEGORY_TILES.map((tile) => (
+            <button
+              key={`blog-cat-${tile.label}`}
+              type="button"
+              onClick={() => onNavigate({ type: 'category', slug: tile.slug })}
+              className="group flex flex-col items-center text-center"
+            >
+              <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-white p-1 transition-all group-hover:-translate-y-1 group-hover:border-[#0E9F6E]">
+                <ProductImage
+                  src={tile.image}
+                  alt={tile.label}
+                  className="h-full w-full rounded-full object-cover"
+                />
+              </div>
+              <span className="mt-1 text-[11px] font-semibold text-slate-700 line-clamp-1 group-hover:text-[#0E9F6E]">
+                {tile.label}
+              </span>
+            </button>
           ))}
         </div>
       </section>

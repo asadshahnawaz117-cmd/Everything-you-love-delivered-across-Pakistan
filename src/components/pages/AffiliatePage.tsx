@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Check,
   ChevronDown,
+  Copy,
   Globe,
   Heart,
   RotateCcw,
@@ -16,11 +17,14 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { AppView } from '../../types';
+import { PRODUCTS, SHOP_CATEGORY_TILES, STUDIO_IMAGES } from '../../data/catalog';
+import { AppView, Product, ProductColorVariant } from '../../types';
 import { MarkazLogo } from '../MarkazLogo';
+import { ProductImage } from '../ProductCard';
 
 interface AffiliatePageProps {
   onNavigate: (view: AppView) => void;
+  onQuickAdd?: (product: Product, color?: ProductColorVariant) => void;
 }
 
 const AFFILIATE_FAQS = [
@@ -50,11 +54,30 @@ const AFFILIATE_FAQS = [
   },
 ];
 
-export const AffiliatePage: React.FC<AffiliatePageProps> = ({ onNavigate }) => {
+export const AffiliatePage: React.FC<AffiliatePageProps> = ({
+  onNavigate,
+  onQuickAdd = () => {},
+}) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authEmail, setAuthEmail] = useState('');
   const [authJoined, setAuthJoined] = useState(false);
+  const [monthlyPosts, setMonthlyPosts] = useState(12);
+  const [ordersPerWeek, setOrdersPerWeek] = useState(18);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const estimatedAffiliateMonthly =
+    monthlyPosts * 350 + ordersPerWeek * 4 * 240;
+
+  const handleCopyPromo = (id: string, title: string) => {
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(`https://markaz.app/ref/ASAD10?item=${encodeURIComponent(title)}`)
+        .catch(() => {});
+    }
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1800);
+  };
 
   const handleJoinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,30 +142,46 @@ export const AffiliatePage: React.FC<AffiliatePageProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Right Phone & Glowing Heart Card */}
+          {/* Right Visual Collage + Glowing Heart Card */}
           <div className="relative flex items-center justify-center lg:col-span-5">
-            <div className="relative flex h-72 w-full max-w-sm items-center justify-center rounded-3xl border border-white/15 bg-white/8 p-6 backdrop-blur-md">
-              <div className="flex h-44 w-56 -rotate-6 flex-col items-center justify-center rounded-2xl border border-white/25 bg-[#082032] p-5 shadow-2xl">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#4ADE80]/20 shadow-[0_0_30px_rgba(74,222,128,0.45)]">
-                  <Heart className="h-9 w-9 fill-[#5EE02A] text-[#5EE02A]" />
-                </div>
-                <p className="mt-3 text-xs font-bold text-white">
-                  Share &amp; Earn PKR
-                </p>
-                <p className="text-[10px] text-emerald-300">
-                  Instant Promo Code Tracking
-                </p>
+            <div className="relative flex w-full max-w-md flex-col items-center justify-center rounded-3xl border border-white/15 bg-white/8 p-5 backdrop-blur-md">
+              <div className="grid w-full grid-cols-2 gap-2.5">
+                {[
+                  { label: 'Lawn Suits · +PKR 320/order', img: STUDIO_IMAGES.lawnEmerald },
+                  { label: 'Smartwatches · +PKR 280/order', img: STUDIO_IMAGES.chronoWatch },
+                  { label: 'Serums & Beauty · +PKR 250/order', img: STUDIO_IMAGES.serumKit },
+                  { label: 'Mini Projectors · +PKR 550/order', img: STUDIO_IMAGES.projector },
+                ].map((card) => (
+                  <div
+                    key={card.label}
+                    className="relative aspect-[4/3] overflow-hidden rounded-xl border border-white/20 bg-slate-900"
+                  >
+                    <img
+                      src={card.img}
+                      alt={card.label}
+                      className="h-full w-full object-cover opacity-90"
+                    />
+                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-2 py-1.5 text-[10px] font-bold text-white">
+                      {card.label}
+                    </span>
+                  </div>
+                ))}
               </div>
 
-              <span className="absolute top-6 right-5 rounded-lg border border-white/20 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-900 shadow-lg">
-                💚 Free To Join
-              </span>
-              <span className="absolute right-4 bottom-12 rounded-lg border border-white/20 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-900 shadow-lg">
-                💵 Paid in PKR
-              </span>
-              <span className="absolute bottom-5 left-5 rounded-lg border border-white/20 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-900 shadow-lg">
-                🌐 No website
-              </span>
+              <div className="mt-3 flex w-full items-center justify-between rounded-xl border border-white/20 bg-[#082032] px-4 py-2.5 shadow-xl">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#4ADE80]/20">
+                    <Heart className="h-5 w-5 fill-[#5EE02A] text-[#5EE02A]" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white">Share &amp; Earn PKR</p>
+                    <p className="text-[10px] text-emerald-300">Instant Promo Code Tracking</p>
+                  </div>
+                </div>
+                <span className="rounded-lg bg-[#8FE041] px-2.5 py-1 text-[10px] font-extrabold text-[#112A12]">
+                  FREE TO JOIN
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -371,7 +410,7 @@ export const AffiliatePage: React.FC<AffiliatePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* 6. Testimonials + Affiliate vs Reseller */}
+      {/* 6. Creator Testimonials with Studio Product Photos */}
       <section className="mx-auto max-w-[1280px] px-4 pt-12 lg:px-6">
         <h2 className="text-center font-display text-2xl font-bold text-slate-900">
           What affiliates say 💚
@@ -381,44 +420,210 @@ export const AffiliatePage: React.FC<AffiliatePageProps> = ({ onNavigate }) => {
             {
               name: 'Sara A.',
               handle: '@sara_pk',
+              img: STUDIO_IMAGES.festivePeach,
               quote:
                 'I made Rs. 18,500 in my first month just sharing products I already use. Super easy!',
             },
             {
               name: 'Ali K.',
               handle: '@alik_creates',
+              img: STUDIO_IMAGES.chronoWatch,
               quote:
                 'The discount code commission is amazing. My followers love the deals and I earn every time.',
             },
             {
               name: 'Hira M.',
               handle: '@hiraslifestyle',
+              img: STUDIO_IMAGES.cosmetics,
               quote:
                 'Markaz affiliate is the most transparent program I’ve joined. Payouts are always on time.',
             },
             {
               name: 'Usman T.',
               handle: '@usman_tech',
+              img: STUDIO_IMAGES.earbuds,
               quote:
                 'Really good for micro-influencers. You don’t need 100k followers to start earning.',
             },
           ].map((rev) => (
             <div
               key={rev.name}
-              className="rounded-xl border border-slate-200 bg-white p-5"
+              className="overflow-hidden rounded-xl border border-slate-200 bg-white"
             >
-              <div className="flex gap-0.5 text-amber-400">
-                {Array.from({ length: 5 }).map((_, idx) => (
-                  <Star key={idx} className="h-3.5 w-3.5 fill-amber-400" />
-                ))}
+              <div className="aspect-[16/9] overflow-hidden bg-slate-100">
+                <img src={rev.img} alt={rev.name} className="h-full w-full object-cover" />
               </div>
-              <p className="mt-3 text-xs leading-relaxed text-slate-600">
-                &ldquo;{rev.quote}&rdquo;
-              </p>
-              <p className="mt-3 text-xs font-bold text-slate-900">{rev.name}</p>
-              <p className="text-[11px] text-slate-400">{rev.handle}</p>
+              <div className="p-5">
+                <div className="flex gap-0.5 text-amber-400">
+                  {Array.from({ length: 5 }).map((_, idx) => (
+                    <Star key={idx} className="h-3.5 w-3.5 fill-amber-400" />
+                  ))}
+                </div>
+                <p className="mt-2.5 text-xs leading-relaxed text-slate-600">
+                  &ldquo;{rev.quote}&rdquo;
+                </p>
+                <p className="mt-3 text-xs font-bold text-slate-900">{rev.name}</p>
+                <p className="text-[11px] text-slate-400">{rev.handle}</p>
+              </div>
             </div>
           ))}
+        </div>
+
+        {/* Interactive Affiliate Payout Calculator */}
+        <div className="mt-12 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 sm:p-8">
+          <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-5">
+              <h3 className="font-display text-xl font-bold text-slate-900">
+                Calculate your monthly affiliate income
+              </h3>
+              <p className="mt-1.5 text-xs leading-relaxed text-slate-600">
+                Combine cash content tasks with passive discount-code commissions across 150,000+ Markaz items.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-7">
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="flex justify-between text-xs font-semibold text-slate-700">
+                  <span>Posts / month</span>
+                  <span className="font-mono-num">{monthlyPosts}</span>
+                </div>
+                <input
+                  type="range"
+                  min={2}
+                  max={40}
+                  value={monthlyPosts}
+                  onChange={(e) => setMonthlyPosts(Number(e.target.value))}
+                  className="mt-2 w-full accent-[#0E9F6E]"
+                />
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="flex justify-between text-xs font-semibold text-slate-700">
+                  <span>Orders / week</span>
+                  <span className="font-mono-num">{ordersPerWeek}</span>
+                </div>
+                <input
+                  type="range"
+                  min={2}
+                  max={100}
+                  value={ordersPerWeek}
+                  onChange={(e) => setOrdersPerWeek(Number(e.target.value))}
+                  className="mt-2 w-full accent-[#0E9F6E]"
+                />
+              </div>
+              <div className="rounded-xl bg-[#0F766E] p-4 text-center text-white">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-100">
+                  Est. Monthly Payout
+                </p>
+                <p className="font-mono-num mt-1 text-xl font-extrabold">
+                  PKR {estimatedAffiliateMonthly.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Top Commission Products to Promote (24 items with Copy Link & Quick Add) */}
+        <div className="mt-12">
+          <div className="mb-4 flex items-end justify-between">
+            <div>
+              <h2 className="font-display text-2xl font-bold text-slate-900">
+                Top Commission Products to Promote
+              </h2>
+              <p className="text-xs text-slate-500">
+                Copy any product referral link or click to inspect photos &amp; customer reviews.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
+              className="text-xs font-semibold text-[#0E9F6E] hover:underline"
+            >
+              Browse full catalog →
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+            {PRODUCTS.slice(0, 24).map((p) => {
+              const estComm = Math.round(p.price * 0.12);
+              const isCopied = copiedId === p.id;
+              return (
+                <div
+                  key={`aff-prod-${p.id}`}
+                  className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white transition-all hover:-translate-y-1 hover:shadow-md"
+                >
+                  <button
+                    type="button"
+                    onClick={() => onNavigate({ type: 'product', productId: p.id })}
+                    className="relative aspect-[4/3] overflow-hidden bg-slate-100 text-left"
+                  >
+                    <ProductImage
+                      src={p.images[0]}
+                      alt={p.title}
+                      className="h-full w-full object-cover group-hover:scale-105"
+                    />
+                    <span className="absolute top-2 left-2 rounded bg-[#0E9F6E] px-2 py-0.5 text-[10px] font-bold text-white">
+                      Earn +PKR {estComm}
+                    </span>
+                  </button>
+                  <div className="flex flex-1 flex-col p-3">
+                    <button
+                      type="button"
+                      onClick={() => onNavigate({ type: 'product', productId: p.id })}
+                      className="text-left text-xs font-semibold text-slate-800 line-clamp-2 hover:text-[#0E9F6E]"
+                    >
+                      {p.title}
+                    </button>
+                    <p className="font-mono-num mt-1 text-xs font-bold text-slate-900">
+                      PKR {p.price.toLocaleString()}
+                    </p>
+                    <div className="mt-auto grid grid-cols-2 gap-1.5 pt-2.5">
+                      <button
+                        type="button"
+                        onClick={() => handleCopyPromo(p.id, p.title)}
+                        className="inline-flex h-7 items-center justify-center gap-1 rounded-lg border border-slate-200 text-[10px] font-bold text-slate-700 hover:border-[#0E9F6E] hover:text-[#0E9F6E]"
+                      >
+                        {isCopied ? <Check className="h-3 w-3 text-[#0E9F6E]" /> : <Copy className="h-3 w-3" />}
+                        <span>{isCopied ? 'Copied' : 'Link'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onQuickAdd(p)}
+                        className="h-7 rounded-lg bg-[#0E9F6E] text-[10px] font-bold text-white hover:bg-[#057A55]"
+                      >
+                        Sample
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 18 Categories Showcase */}
+        <div className="mt-12">
+          <h3 className="mb-4 font-display text-lg font-bold text-slate-900">
+            18 High-Converting Categories
+          </h3>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 lg:grid-cols-9">
+            {SHOP_CATEGORY_TILES.map((tile) => (
+              <button
+                key={`aff-cat-${tile.label}`}
+                type="button"
+                onClick={() => onNavigate({ type: 'category', slug: tile.slug })}
+                className="group flex flex-col items-center text-center"
+              >
+                <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-[#F4F5F7] p-1 transition-all group-hover:-translate-y-1 group-hover:border-[#0E9F6E]">
+                  <ProductImage
+                    src={tile.image}
+                    alt={tile.label}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                </div>
+                <span className="mt-1 text-[11px] font-semibold text-slate-700 line-clamp-1 group-hover:text-[#0E9F6E]">
+                  {tile.label}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Comparison */}

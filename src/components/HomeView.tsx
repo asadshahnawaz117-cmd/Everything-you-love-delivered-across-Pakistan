@@ -11,10 +11,11 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import {
-  CATEGORIES,
   FAQS,
   OCCASIONS,
   PRODUCTS,
+  SHOP_CATEGORY_TILES,
+  STUDIO_IMAGES,
 } from '../data/catalog';
 import { AppView, OccasionSlug, Product, ProductColorVariant } from '../types';
 import { ProductCard, ProductImage } from './ProductCard';
@@ -41,19 +42,34 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const [heroSearch, setHeroSearch] = useState('');
   const [selectedOccasion, setSelectedOccasion] = useState<OccasionSlug>('eid-edit');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
-  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [showAllCategories, setShowAllCategories] = useState(true);
 
-  const primaryCategories = CATEGORIES.slice(0, 9);
-  const visibleCategories = showAllCategories ? CATEGORIES : primaryCategories;
+  const visibleCategories = showAllCategories
+    ? SHOP_CATEGORY_TILES
+    : SHOP_CATEGORY_TILES.slice(0, 9);
 
   const occasionProducts = PRODUCTS.filter((p) =>
     p.occasions.includes(selectedOccasion)
-  ).slice(0, 6);
+  ).slice(0, 12);
 
-  const melaProducts = PRODUCTS.filter((p) => p.sponsored).slice(0, 6);
-  const chinaProducts = PRODUCTS.filter((p) => p.origin === 'china').slice(0, 6);
-  const featuredProducts = PRODUCTS.filter((p) => p.featured).slice(0, 6);
-  const newTodayProducts = PRODUCTS.filter((p) => p.isNew).slice(0, 6);
+  const melaProducts = PRODUCTS.filter((p) => p.sponsored).slice(0, 12);
+  const chinaProducts = PRODUCTS.filter((p) => p.origin === 'china').slice(0, 12);
+  const featuredProducts = PRODUCTS.filter((p) => p.featured).slice(0, 12);
+  const newTodayProducts = PRODUCTS.filter((p) => p.isNew).slice(0, 12);
+  const bestDealsProducts = PRODUCTS.filter((p) => (p.discountPercent || 0) >= 22).slice(0, 12);
+  const popularCityProducts = PRODUCTS.filter(
+    (p) => p.supplierCity === 'Lahore' || p.supplierCity === 'Karachi'
+  ).slice(0, 12);
+  const fashionBeautyProducts = PRODUCTS.filter(
+    (p) =>
+      p.category === 'womens-stitched' ||
+      p.category === 'womens-unstitched' ||
+      p.category === 'cosmetics' ||
+      p.category === 'watches-jewellery'
+  ).slice(0, 12);
+  const homeKitchenProducts = PRODUCTS.filter(
+    (p) => p.category === 'kitchenware' || p.category === 'bedding'
+  ).slice(0, 12);
 
   const handleHeroSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -376,7 +392,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               onClick={() => setShowAllCategories(!showAllCategories)}
               className="text-xs font-semibold text-slate-600 hover:text-[#0E9F6E] whitespace-nowrap"
             >
-              {showAllCategories ? 'Show top 9' : `All ${CATEGORIES.length} categories`}
+              {showAllCategories ? 'Show top 9' : `All ${SHOP_CATEGORY_TILES.length} categories`}
             </button>
             <button
               type="button"
@@ -389,31 +405,31 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 sm:grid-cols-5 lg:grid-cols-9">
+        <div className="grid grid-cols-3 gap-4 sm:grid-cols-6 lg:grid-cols-9">
           {visibleCategories.map((cat, idx) => (
             <motion.button
-              key={cat.slug}
+              key={cat.label}
               type="button"
               initial={{ opacity: 0, y: 14, scale: 0.92 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, amount: 0.15 }}
               transition={{
                 duration: 0.34,
-                delay: Math.min(idx * 0.035, 0.28),
+                delay: Math.min(idx * 0.03, 0.25),
                 ease: [0.22, 1, 0.36, 1],
               }}
               onClick={() => onNavigate({ type: 'category', slug: cat.slug })}
               className="group flex flex-col items-center text-center"
             >
-              <div className="mb-2 aspect-square w-20 overflow-hidden rounded-full border border-slate-200/80 bg-[#F4F5F7] p-1 shadow-2xs transition-all duration-300 group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:border-[#0E9F6E] group-hover:shadow-[0_12px_24px_-8px_rgba(14,159,110,0.32)] sm:w-24">
+              <div className="mb-2 aspect-square w-20 overflow-hidden rounded-full border border-slate-200/80 bg-[#F4F5F7] p-1 shadow-2xs transition-all duration-300 group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:border-[#0E9F6E] group-hover:shadow-[0_12px_24px_-8px_rgba(14,159,110,0.32)] sm:w-22">
                 <ProductImage
                   src={cat.image}
-                  alt={cat.name}
+                  alt={cat.label}
                   className="h-full w-full rounded-full object-cover group-hover:scale-110"
                 />
               </div>
               <span className="text-xs font-medium text-slate-800 line-clamp-2 transition-colors group-hover:text-[#0E9F6E]">
-                {cat.name}
+                {cat.label}
               </span>
             </motion.button>
           ))}
@@ -476,7 +492,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </h2>
           <button
             type="button"
-            onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
+            onClick={() =>
+              onNavigate({
+                type: 'collection',
+                collectionId: 'mela-sponsored',
+                title: 'Markaz Mela Sponsored',
+              })
+            }
             className="inline-flex items-center gap-1 text-xs font-semibold text-[#0E9F6E] hover:underline whitespace-nowrap shrink-0"
           >
             <span>See all</span>
@@ -538,7 +560,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </h2>
           <button
             type="button"
-            onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
+            onClick={() =>
+              onNavigate({
+                type: 'collection',
+                collectionId: 'featured',
+                title: 'Markaz Featured',
+              })
+            }
             className="inline-flex items-center gap-1 text-xs font-semibold text-[#0E9F6E] hover:underline whitespace-nowrap shrink-0"
           >
             <span>See all</span>
@@ -569,7 +597,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </h2>
           <button
             type="button"
-            onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
+            onClick={() =>
+              onNavigate({
+                type: 'collection',
+                collectionId: 'new-today',
+                title: 'New Products Today',
+              })
+            }
             className="inline-flex items-center gap-1 text-xs font-semibold text-[#0E9F6E] hover:underline whitespace-nowrap shrink-0"
           >
             <span>See all</span>
@@ -581,6 +615,183 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {newTodayProducts.map((product, idx) => (
             <ProductCard
               key={product.id}
+              product={product}
+              staggerIndex={idx}
+              isWishlisted={wishlistIds.includes(product.id)}
+              onToggleWishlist={onToggleWishlist}
+              onQuickAdd={onQuickAdd}
+              onSelect={onSelectProduct}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 8B. Curated Collections Visual Banner Grid (6 rich visuals) */}
+      <section className="mx-auto max-w-[1280px] px-4 pt-11 lg:px-6">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <h2 className="font-display text-xl font-bold text-slate-900 sm:text-2xl">
+            Curated Collections
+          </h2>
+          <button
+            type="button"
+            onClick={() => onNavigate({ type: 'shop', origin: 'pakistan' })}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#0E9F6E] hover:underline whitespace-nowrap shrink-0"
+          >
+            <span>Explore Store</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+          {[
+            { label: 'Festive Lawn', img: STUDIO_IMAGES.lawnEmerald, slug: 'womens-unstitched' as const },
+            { label: 'Bridal Beauty', img: STUDIO_IMAGES.cosmetics, slug: 'cosmetics' as const },
+            { label: 'Royal Oud & Attar', img: STUDIO_IMAGES.oudBox, slug: 'perfumes' as const },
+            { label: 'Luxury Watches', img: STUDIO_IMAGES.chronoWatch, slug: 'watches-jewellery' as const },
+            { label: 'Smart Kitchen', img: STUDIO_IMAGES.airFryer, slug: 'kitchenware' as const },
+            { label: 'Velvet Bedding', img: STUDIO_IMAGES.beddingMaroon, slug: 'bedding' as const },
+          ].map((col) => (
+            <button
+              key={col.label}
+              type="button"
+              onClick={() => onNavigate({ type: 'category', slug: col.slug })}
+              className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-slate-200 bg-slate-900 text-left shadow-xs"
+            >
+              <ProductImage
+                src={col.img}
+                alt={col.label}
+                className="h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-3">
+                <p className="font-display text-sm font-bold text-white">{col.label}</p>
+                <span className="text-[11px] font-semibold text-emerald-300">Shop collection →</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* 8C. Best Deals For You */}
+      <section className="mx-auto max-w-[1280px] px-4 pt-11 lg:px-6">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <h2 className="font-display text-xl font-bold text-slate-900 sm:text-2xl">
+            Best Deals For You
+          </h2>
+          <button
+            type="button"
+            onClick={() =>
+              onNavigate({
+                type: 'collection',
+                collectionId: 'best-deals',
+                title: 'Best Deals For You',
+              })
+            }
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#0E9F6E] hover:underline whitespace-nowrap shrink-0"
+          >
+            <span>See all</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+          {bestDealsProducts.map((product, idx) => (
+            <ProductCard
+              key={`deal-${product.id}`}
+              product={product}
+              staggerIndex={idx}
+              isWishlisted={wishlistIds.includes(product.id)}
+              onToggleWishlist={onToggleWishlist}
+              onQuickAdd={onQuickAdd}
+              onSelect={onSelectProduct}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 8D. Popular In Your City */}
+      <section className="mx-auto max-w-[1280px] px-4 pt-11 lg:px-6">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <h2 className="font-display text-xl font-bold text-slate-900 sm:text-2xl">
+            Popular In Your City
+          </h2>
+          <button
+            type="button"
+            onClick={() =>
+              onNavigate({
+                type: 'collection',
+                collectionId: 'popular-city',
+                title: 'Popular In Your City',
+              })
+            }
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#0E9F6E] hover:underline whitespace-nowrap shrink-0"
+          >
+            <span>See all</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+          {popularCityProducts.map((product, idx) => (
+            <ProductCard
+              key={`city-${product.id}`}
+              product={product}
+              staggerIndex={idx}
+              isWishlisted={wishlistIds.includes(product.id)}
+              onToggleWishlist={onToggleWishlist}
+              onQuickAdd={onQuickAdd}
+              onSelect={onSelectProduct}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 8E. Fashion & Beauty Picks */}
+      <section className="mx-auto max-w-[1280px] px-4 pt-11 lg:px-6">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <h2 className="font-display text-xl font-bold text-slate-900 sm:text-2xl">
+            Editor&apos;s Picks — Fashion &amp; Beauty
+          </h2>
+          <button
+            type="button"
+            onClick={() => onNavigate({ type: 'category', slug: 'womens-stitched' })}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#0E9F6E] hover:underline whitespace-nowrap shrink-0"
+          >
+            <span>See all</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+          {fashionBeautyProducts.map((product, idx) => (
+            <ProductCard
+              key={`fashion-${product.id}`}
+              product={product}
+              staggerIndex={idx}
+              isWishlisted={wishlistIds.includes(product.id)}
+              onToggleWishlist={onToggleWishlist}
+              onQuickAdd={onQuickAdd}
+              onSelect={onSelectProduct}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 8F. Home, Kitchen & Daily Essentials */}
+      <section className="mx-auto max-w-[1280px] px-4 pt-11 lg:px-6">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <h2 className="font-display text-xl font-bold text-slate-900 sm:text-2xl">
+            Home, Kitchen &amp; Daily Essentials
+          </h2>
+          <button
+            type="button"
+            onClick={() => onNavigate({ type: 'category', slug: 'kitchenware' })}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#0E9F6E] hover:underline whitespace-nowrap shrink-0"
+          >
+            <span>See all</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+          {homeKitchenProducts.map((product, idx) => (
+            <ProductCard
+              key={`homekit-${product.id}`}
               product={product}
               staggerIndex={idx}
               isWishlisted={wishlistIds.includes(product.id)}
